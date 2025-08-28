@@ -70,15 +70,21 @@ function App() {
   };
 
   const handleRedirect = async () => {
-    if (!location.trim()) return;
+    if (!location.trim()) {
+      setMessage({ text: 'Please enter a location.', type: 'error' });
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      setLoading(true);
-
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/save-geocode', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      const response = await fetch(`${backendUrl}/reverse-geocode`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address: location }),
       });
 
       const data = await response.json();
