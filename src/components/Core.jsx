@@ -205,15 +205,21 @@ function Core() {
   // Function to refresh reports data
   const fetchReports = async () => {
     try {
+      const { lat, lng } = savedLocationData;
+      if (!lat || !lng) {
+        console.warn('Location not available. Cannot fetch nearby reports.');
+        return;
+      }
+
       const response = await fetch(
-        import.meta.env.VITE_BACKEND_URL + '/api/reports'
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}`
       );
       if (!response.ok) {
         throw new Error('Failed to fetch reports');
       }
       const data = await response.json();
       setAllReports(data.reports);
-      filterReportsByLocation(data.reports, savedLocationData);
+      setReports(data.reports); // Directly use the filtered data from backend
     } catch (error) {
       console.error('Error fetching reports:', error);
     }
