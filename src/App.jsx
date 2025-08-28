@@ -82,18 +82,20 @@ function App() {
       'san juan',
       'marikina',
       'pasay',
+      'paranaque',
       'parañaque',
+      'las pinas',
       'las piñas',
       'muntinlupa',
       'caloocan',
       'malabon',
       'navotas',
       'valenzuela'
-    ];
+    ]
 
-    const locationLower = locationName.toLowerCase();
-    return metroManilaKeywords.some(keyword => locationLower.includes(keyword));
-  };
+    const locationLower = locationName.toLowerCase()
+    return metroManilaKeywords.some(keyword => locationLower.includes(keyword))
+  }
 
   const handleRedirect = async () => {
     if (!location.trim()) {
@@ -118,7 +120,13 @@ function App() {
         const geocodeResult = await geocodeResponse.json()
 
         if (geocodeResult.success) {
-            // Step 2: Navigate to the /core page with the geocoded coordinates
+            // Step 2: Check if the location is within Metro Manila
+            if (!isWithinMetroManila(geocodeResult.location_name)) {
+                setShowLocationRestrictionModal(true)
+                return
+            }
+
+            // Step 3: Navigate to the /core page with the geocoded coordinates
             navigate('/core', {
                 state: {
                     latitude: geocodeResult.latitude,
@@ -136,7 +144,7 @@ function App() {
     } finally {
         setLoading(false)
     }
-}
+  }
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
