@@ -213,9 +213,7 @@ function App() {
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
           <h2 className="text-xl font-bold mb-4 text-center">Service Area Restriction</h2>
           <p className="text-md text-center mb-6 leading-6">
-            Sorry, Ulat PH is currently only available within Metro Manila.
-            <br />
-            Please enter a location within Metro Manila to continue.
+            Sorry, Ulat PH is currently only available within Metro Manila. Please enter a location within Metro Manila to continue.
           </p>
           <div className="flex gap-3">
             <button

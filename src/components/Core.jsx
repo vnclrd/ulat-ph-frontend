@@ -245,7 +245,7 @@ function Core() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${
-          report.id
+          reportId
         }/sightings`,
         {
           method: 'POST',
@@ -306,7 +306,7 @@ function Core() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${report.id}/resolved`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
         {
           method: 'POST',
           headers: {
@@ -391,28 +391,28 @@ function Core() {
         name: location.state.locationName || 'Selected Location',
         lat: location.state.latitude,
         lng: location.state.longitude,
-      };
+      }
       
       // Update state
-      setSavedLocationData(newLocationData);
-      setLocationName(newLocationData.name);
+      setSavedLocationData(newLocationData)
+      setLocationName(newLocationData.name)
       
       // Save to localStorage for future use
-      localStorage.setItem('savedLocation', JSON.stringify(newLocationData));
+      localStorage.setItem('savedLocation', JSON.stringify(newLocationData))
       
-      return; // Exit early, don't try to load from localStorage or geolocation
+      return // Exit early, don't try to load from localStorage or geolocation
     }
 
     // If no navigation state, try localStorage
-    const saved = localStorage.getItem('savedLocation');
+    const saved = localStorage.getItem('savedLocation')
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        setSavedLocationData(parsed);
-        setLocationName(parsed.name || 'Unknown location');
-        return; // Exit early, don't use geolocation
+        const parsed = JSON.parse(saved)
+        setSavedLocationData(parsed)
+        setLocationName(parsed.name || 'Unknown location')
+        return // Exit early, don't use geolocation
       } catch (err) {
-        console.error('Failed to parse saved location:', err);
+        console.error('Failed to parse saved location:', err)
       }
     }
 
@@ -423,13 +423,13 @@ function Core() {
           name: 'Your Current Location',
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-        };
-        setSavedLocationData(newLocation);
-        setLocationName(newLocation.name);
-        localStorage.setItem('savedLocation', JSON.stringify(newLocation));
-      });
+        }
+        setSavedLocationData(newLocation)
+        setLocationName(newLocation.name)
+        localStorage.setItem('savedLocation', JSON.stringify(newLocation))
+      })
     }
-  }, [location.state]); // Add location.state as dependency
+  }, [location.state]) // Add location.state as dependency
 
   // Update locationName when savedLocationData changes
   useEffect(() => {
