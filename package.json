@@ -1,0 +1,17 @@
+{
+  "name": "ulat-ph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-frontend": "npm run dev --prefix frontend -- --host",
+    "start-backend": "cd backend && python app.py",
+    "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
