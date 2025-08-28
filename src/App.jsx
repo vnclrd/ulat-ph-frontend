@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDarkMode } from './components/DarkModeContext'
+import { useLocationData } from './components/LocationDataContext'
 
 function App() {
   const [location, setLocation] = useState('')
@@ -14,11 +15,12 @@ function App() {
 
   const navigate = useNavigate()
   const { isDarkMode } = useDarkMode()
+  const { saveLocationData } = useLocationData() // Add this line
 
   // Function to get dynamic greeting based on time
   const getGreeting = () => {
     const hour = new Date().getHours()
-    
+
     if (hour >= 5 && hour < 12) {
       return 'Good morning'
     } else if (hour >= 12 && hour < 17) {
@@ -131,6 +133,13 @@ function App() {
 
           if (response.ok) {
             setLocation(data.address)
+            // Save the detected location to state and session storage
+            saveLocationData({
+              lat: latitude,
+              lng: longitude,
+              name: data.address,
+            });
+            navigate('/core');
           } else {
             showMessage(data.error || 'Failed to get address', 'error')
           }
