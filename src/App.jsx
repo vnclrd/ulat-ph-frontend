@@ -71,42 +71,46 @@ function App() {
 
   const handleRedirect = async () => {
     if (!location.trim()) {
-      setMessage({ text: 'Please enter a location.', type: 'error' });
-      return;
+        setMessage({ text: 'Please enter a location.', type: 'error' });
+        return;
     }
 
     setLoading(true);
 
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      const response = await fetch(`${backendUrl}/reverse-geocode`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ address: location }),
-      });
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+        
+        // Step 1: Geocode the entered location string to get coordinates
+        const geocodeResponse = await fetch(`${backendUrl}/geocode`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ address: location }),
+        });
 
-      const data = await response.json();
+        const geocodeResult = await geocodeResponse.json();
 
-      if (response.ok) {
-        localStorage.setItem('savedLocation', JSON.stringify({
-          name: data.data.name,
-          lat: data.data.latitude,
-          lng: data.data.longitude
-        }));
-
-        navigate('/core');
-      } else {
-        showMessage(data.error || 'Something went wrong', 'error');
-      }
+        if (geocodeResult.success) {
+            // Step 2: Navigate to the /core page with the geocoded coordinates
+            navigate('/core', {
+                state: {
+                    latitude: geocodeResult.latitude,
+                    longitude: geocodeResult.longitude,
+                    locationName: geocodeResult.location_name,
+                },
+            });
+        } else {
+            // Handle geocoding failure
+            setMessage({ text: geocodeResult.message, type: 'error' });
+        }
     } catch (error) {
-      console.error(error);
-      showMessage('Failed to save location. Check your backend.', 'error');
+        console.error('Failed to geocode location:', error);
+        setMessage({ text: 'Failed to find location. Please try again.', type: 'error' });
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
