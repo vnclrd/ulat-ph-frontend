@@ -246,24 +246,41 @@ function Core() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${
-          reportId
-        }/sightings`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/sightings`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       )
 
       const result = await response.json()
 
       if (result.success) {
-        setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
+        // Update counts locally instead of waiting for fetchReports()
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report.id === reportId
+              ? {
+                  ...report,
+                  sightings: {
+                    ...report.sightings,
+                    count: (report.sightings?.count || 0) + 1,
+                  },
+                }
+              : report
+          )
+        )
+
+        // Update selected report if it's currently displayed
+        if (selectedReport?.id === reportId) {
+          setSelectedReport((prev) => ({
+            ...prev,
+            sightings: {
+              ...prev.sightings,
+              count: (prev.sightings?.count || 0) + 1,
+            },
+          }))
+        }
 
         // Mark button as clicked
         setUserClickedButtons((prev) => ({
@@ -271,8 +288,10 @@ function Core() {
           [`${reportId}_sightings`]: true,
         }))
 
-        // Refresh reports data to get updated counts
-        await fetchReports()
+        setButtonStatus({
+          type: 'success',
+          message: result.message,
+        })
       } else {
         setButtonStatus({
           type: 'error',
@@ -309,19 +328,38 @@ function Core() {
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       )
 
       const result = await response.json()
 
       if (result.success) {
-        setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
+        // Update counts locally
+        setReports((prevReports) =>
+          prevReports.map((report) =>
+            report.id === reportId
+              ? {
+                  ...report,
+                  resolved: {
+                    ...report.resolved,
+                    count: (report.resolved?.count || 0) + 1,
+                  },
+                }
+              : report
+          )
+        )
+
+        // Update selected report if it's currently displayed
+        if (selectedReport?.id === reportId) {
+          setSelectedReport((prev) => ({
+            ...prev,
+            resolved: {
+              ...prev.resolved,
+              count: (prev.resolved?.count || 0) + 1,
+            },
+          }))
+        }
 
         // Mark button as clicked
         setUserClickedButtons((prev) => ({
@@ -329,13 +367,10 @@ function Core() {
           [`${reportId}_resolved`]: true,
         }))
 
-        // If report was deleted, clear selection
-        if (result.report_deleted) {
-          setSelectedReport(null)
-        }
-
-        // Refresh reports data to get updated counts
-        await fetchReports()
+        setButtonStatus({
+          type: 'success',
+          message: result.message,
+        })
       } else {
         setButtonStatus({
           type: 'error',
