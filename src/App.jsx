@@ -11,6 +11,7 @@ function App() {
   const [nameInput, setNameInput] = useState('')
   const [message, setMessage] = useState({ text: '', type: '' })
   const [greeting, setGreeting] = useState('')
+  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false); // State for Metro Manila restriction popup
 
   const navigate = useNavigate()
   const { isDarkMode } = useDarkMode()
