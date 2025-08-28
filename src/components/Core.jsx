@@ -723,7 +723,7 @@ function Core() {
                         ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
                       `}
                     >
-                      OK
+                      Alright!
                     </button>
                   </div>
                 </div>
