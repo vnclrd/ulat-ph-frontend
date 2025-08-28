@@ -16,12 +16,58 @@ function Core() {
   const location = useLocation()
   const navigate = useNavigate();
 
-  const { latitude, longitude } = location.state || {}
+  // get navigation state (may be undefined on refresh)
+  const stateLatitude = location.state?.latitude
+  const stateLongitude = location.state?.longitude
+
+  // effective coords we will rely on (state has priority, fallback to savedLocationData)
+  const effectiveLat = stateLatitude || savedLocationData?.lat
+  const effectiveLng = stateLongitude || savedLocationData?.lng
+
+  // If navigation state is present, persist it into savedLocationData (and localStorage)
   useEffect(() => {
-    if (!latitude || !longitude) {
-      navigate('/');
+    if (stateLatitude && stateLongitude) {
+      const newLocationData = {
+        name: location.state.locationName || 'Selected Location',
+        lat: stateLatitude,
+        lng: stateLongitude,
+      }
+      setSavedLocationData(newLocationData)
+      setLocationName(newLocationData.name)
+      localStorage.setItem('savedLocation', JSON.stringify(newLocationData))
     }
-  }, [latitude, longitude, navigate]);
+  }, [stateLatitude, stateLongitude, location.state])
+
+  // Redirect only if we have no coordinates anywhere (state, localStorage, or geolocation fallback)
+  useEffect(() => {
+    // if we've got coordinates, stay in this page
+    if (effectiveLat && effectiveLng) return
+
+    // If no coords after saved/local checks, try to detect via geolocation (as a final attempt)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const newLocation = {
+            name: 'Your Current Location',
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          }
+          setSavedLocationData(newLocation)
+          setLocationName(newLocation.name)
+          localStorage.setItem('savedLocation', JSON.stringify(newLocation))
+        },
+        (err) => {
+          // If geolocation also fails, send the user back to home to re-enter location
+          console.warn('Geolocation fallback failed:', err)
+          navigate('/')
+        },
+        { timeout: 8000 }
+      )
+    } else {
+      // no geolocation available — go back to home
+      navigate('/')
+    }
+  }, [effectiveLat, effectiveLng, navigate])
 
   // Toggle Dark Mode
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -182,7 +228,14 @@ function Core() {
 
   const [savedLocationData, setSavedLocationData] = useState(() => {
     const stored = localStorage.getItem('savedLocation')
-    return stored ? JSON.parse(stored) : {}
+    if (!stored) return {}
+    try {
+      return JSON.parse(stored)
+    } catch (err) {
+      console.warn('savedLocation parse failed, clearing local savedLocation', err)
+      localStorage.removeItem('savedLocation')
+      return {}
+    }
   })
 
   // For already clicked verification
@@ -191,9 +244,7 @@ function Core() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${
-          report.id
-        }/user-status`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/user-status?device_id=${deviceId}`
       )
       const result = await response.json()
 
@@ -254,30 +305,33 @@ function Core() {
   // Function to refresh reports data
   const fetchReports = async () => {
     try {
-      // Use location.state if available, fallback to savedLocationData
-      const lat = latitude || savedLocationData?.lat;
-      const lng = longitude || savedLocationData?.lng;
+      // prefer navigation state coords (already persisted to savedLocationData in effect),
+      // fallback to savedLocationData
+      const lat = stateLatitude || savedLocationData?.lat
+      const lng = stateLongitude || savedLocationData?.lng
 
       if (!lat || !lng) {
-        console.warn('Location not available. Cannot fetch nearby reports.');
-        return;
+        console.warn('Location not available. Cannot fetch nearby reports.')
+        return
       }
 
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}`
-      );
-
+      )
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        throw new Error('Failed to fetch reports')
       }
-
-      const data = await response.json();
-      setAllReports(data.reports);
-      setReports(data.reports); // Use filtered reports from backend
+      const data = await response.json()
+      setAllReports(data.reports || [])
+      setReports(data.reports || []) // Directly use the filtered data from backend
+      // If backend returns filtered list, set selectedReport to the first if none
+      if ((!selectedReport || !selectedReport.id) && data.reports && data.reports.length > 0) {
+        setSelectedReport(data.reports[0])
+      }
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('Error fetching reports:', error)
     }
-  };
+  }
 
   // Function to handle sightings button click
   const handleSightingsClick = async (reportId) => {
@@ -645,6 +699,20 @@ function Core() {
     iconAnchor: [12, 41],
   })
   L.Marker.prototype.options.icon = DefaultIcon
+
+  // decide effective coords (recalculate, same as the effect uses)
+  const effectiveLatForRender = stateLatitude || savedLocationData?.lat
+  const effectiveLngForRender = stateLongitude || savedLocationData?.lng
+
+  if (!effectiveLatForRender || !effectiveLngForRender) {
+    // Don't try to render the large UI while we are resolving the location.
+    // Return a simple placeholder while geolocation/saved-state is resolved.
+    return (
+      <div className={`flex items-center justify-center min-h-screen ${isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]' }`}>
+        <p className='text-[#e0e0e0]'>Loading location…</p>
+      </div>
+    )
+  }
 
   return (
     <div className='flex flex-col w-full min-h-screen bg-[#009688]'>
