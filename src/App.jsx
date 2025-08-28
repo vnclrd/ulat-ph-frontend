@@ -1,157 +1,153 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDarkMode } from './components/DarkModeContext';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useDarkMode } from './components/DarkModeContext'
 
 function App() {
-  const [location, setLocation] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [detecting, setDetecting] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [nameInput, setNameInput] = useState('');
-  const [message, setMessage] = useState({ text: '', type: '' });
-  const [greeting, setGreeting] = useState('');
+  const [location, setLocation] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [detecting, setDetecting] = useState(false)
+  const [userName, setUserName] = useState('')
+  const [showNamePrompt, setShowNamePrompt] = useState(false)
+  const [nameInput, setNameInput] = useState('')
+  const [message, setMessage] = useState({ text: '', type: '' })
+  const [greeting, setGreeting] = useState('')
 
-  const navigate = useNavigate();
-  const { isDarkMode } = useDarkMode();
+  const navigate = useNavigate()
+  const { isDarkMode } = useDarkMode()
 
   // Function to get dynamic greeting based on time
   const getGreeting = () => {
-    const hour = new Date().getHours();
+    const hour = new Date().getHours()
     
     if (hour >= 5 && hour < 12) {
-      return 'Good morning';
+      return 'Good morning'
     } else if (hour >= 12 && hour < 17) {
-      return 'Good afternoon';
+      return 'Good afternoon'
     } else {
-      return 'Good evening';
+      return 'Good evening'
     }
-  };
+  }
 
   // useEffect to handle name storage and retrieval
   useEffect(() => {
-    const storedName = localStorage.getItem('userName');
+    const storedName = localStorage.getItem('userName')
     if (storedName) {
-      setUserName(storedName);
+      setUserName(storedName)
     } else {
-      setShowNamePrompt(true);
+      setShowNamePrompt(true)
     }
-  }, []);
+  }, [])
 
   // useEffect to set initial greeting and update it every minute
   useEffect(() => {
     const updateGreeting = () => {
-      setGreeting(getGreeting());
-    };
+      setGreeting(getGreeting())
+    }
 
     // Set initial greeting
-    updateGreeting();
+    updateGreeting()
 
     // Update greeting every minute
-    const interval = setInterval(updateGreeting, 60000);
+    const interval = setInterval(updateGreeting, 60000)
 
     // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSaveName = () => {
     if (nameInput.trim()) {
-      localStorage.setItem('userName', nameInput.trim());
-      setUserName(nameInput.trim());
-      setShowNamePrompt(false);
+      localStorage.setItem('userName', nameInput.trim())
+      setUserName(nameInput.trim())
+      setShowNamePrompt(false)
     } else {
-      showMessage('Please enter a name.', 'error');
+      showMessage('Please enter a name.', 'error')
     }
-  };
+  }
 
   const showMessage = (text, type) => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage({ text: '', type: '' }), 5000); // Hide after 5 seconds
-  };
+    setMessage({ text, type })
+    setTimeout(() => setMessage({ text: '', type: '' }), 5000) // Hide after 5 seconds
+  }
 
   const handleRedirect = async () => {
-    if (!location.trim()) {
-      setMessage({ text: 'Please enter a location.', type: 'error' });
-      return;
-    }
-
-    setLoading(true);
-
+    setLoading(true)
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL;
-      
-      // Step 1: Geocode the entered location string to get coordinates
-      const geocodeResponse = await fetch(`${backendUrl}/geocode`, {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/geocode`,
+        {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({ address: location }),
-      });
+        }
+      )
+      const data = await response.json()
 
-      const geocodeResult = await geocodeResponse.json();
+      if (data.success) {
+        // Save the new location to state and session storage
+        saveLocationData({
+          lat: data.latitude,
+          lng: data.longitude,
+          name: data.location_name,
+        })
 
-      if (geocodeResult.success) {
-          // Step 2: Navigate to the /core page with the geocoded coordinates
-          navigate('/core', {
-              state: {
-                  latitude: geocodeResult.latitude,
-                  longitude: geocodeResult.longitude,
-                  locationName: geocodeResult.location_name,
-              },
-          });
+        // Navigate to the core page
+        navigate('/core')
       } else {
-          // Handle geocoding failure
-          setMessage({ text: geocodeResult.message, type: 'error' });
+        setMessage({ text: data.message, type: 'error' })
       }
     } catch (error) {
-        console.error('Failed to geocode location:', error);
-        setMessage({ text: 'Failed to find location. Please try again.', type: 'error' });
+      console.error('Geocoding error:', error)
+      setMessage({
+        text: 'Failed to find location. Please try a more specific address.',
+        type: 'error',
+      })
     } finally {
-        setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
-      showMessage('Geolocation is not supported by your browser.', 'error');
-      return;
+      showMessage('Geolocation is not supported by your browser.', 'error')
+      return
     }
 
-    setDetecting(true);
+    setDetecting(true)
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude } = position.coords
 
         try {
           const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/reverse-geocode', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ latitude, longitude }),
-          });
+          })
 
-          const data = await response.json();
+          const data = await response.json()
 
           if (response.ok) {
-            setLocation(data.address);
+            setLocation(data.address)
           } else {
-            showMessage(data.error || 'Failed to get address', 'error');
+            showMessage(data.error || 'Failed to get address', 'error')
           }
         } catch (error) {
-          console.error(error);
-          showMessage('Failed to detect location. Please try again.', 'error');
+          console.error(error)
+          showMessage('Failed to detect location. Please try again.', 'error')
         } finally {
-          setDetecting(false);
+          setDetecting(false)
         }
       },
       (error) => {
-        console.error(error);
-        setDetecting(false);
-        showMessage('Unable to retrieve your location. Please check your browser permissions.', 'error');
+        console.error(error)
+        setDetecting(false)
+        showMessage('Unable to retrieve your location. Please check your browser permissions.', 'error')
       }
-    );
-  };
+    )
+  }
 
   return (
     <div className={`flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out ${
@@ -234,7 +230,7 @@ function App() {
         <p className='text-[#e0e0e0] text-xs mt-4 lg:mt-6 italic'>Tip: You can pin your exact location later.</p>
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
