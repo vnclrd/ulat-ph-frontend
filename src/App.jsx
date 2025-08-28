@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDarkMode } from './components/DarkModeContext'
-import { useLocationData } from './components/LocationDataContext'
+import { useLocationData } from './components/LocationContext'
 
 function App() {
   const [location, setLocation] = useState('')
