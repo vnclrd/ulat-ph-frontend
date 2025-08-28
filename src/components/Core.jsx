@@ -16,8 +16,15 @@ function Core() {
   // Toggle Dark Mode
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
-  // Modal for success button click
-  
+  // Generate UID
+  const getDeviceId = () => {
+    let deviceId = localStorage.getItem('deviceId')
+    if (!deviceId) {
+      deviceId = Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36)
+      localStorage.setItem('deviceId', deviceId)
+    }
+    return deviceId
+  }
 
   const handleToggle = () => {
     toggleDarkMode()
@@ -245,6 +252,7 @@ function Core() {
     setButtonStatus(null)
 
     try {
+      const deviceId = getDeviceId()
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/sightings`,
         {
@@ -324,6 +332,7 @@ function Core() {
     setButtonStatus(null)
 
     try {
+      const deviceId = getDeviceId()
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
         {
