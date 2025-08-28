@@ -202,8 +202,8 @@ function App() {
       {/* Metro Manila Restriction Modal */}
       {showLocationRestrictionModal && (
         <div
-          className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ${
-            showModal ? 'opacity-100' : 'opacity-0'
+          className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
+            showLocationRestrictionModal ? 'opacity-100 bg-black/50' : 'opacity-0'
           }`}
         >
           <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
