@@ -452,10 +452,13 @@ function Core() {
       formData.append('longitude', savedLocationData.lng);
 
       // Submit to backend
-      const response = await fetch('http://192.168.1.3:5000/api/reports', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       const result = await response.json();
 
