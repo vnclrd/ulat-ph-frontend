@@ -1,17 +1,35 @@
 {
-  "name": "ulat-ph",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start-frontend": "npm run dev --prefix frontend -- --host",
-    "start-backend": "cd backend && python app.py",
-    "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\""
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.542.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.8.1"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "@eslint/js": "^9.33.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.12",
+    "vite": "^7.1.2"
   }
 }
