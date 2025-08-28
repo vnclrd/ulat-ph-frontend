@@ -201,21 +201,26 @@ function App() {
 
       {/* Metro Manila Restriction Modal */}
       <div
-        className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
           showLocationRestrictionModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
       >
-        <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+        <div
+          className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
+            isDarkMode ? 'bg-[#1e2a44] text-[#a0a0a0]' : 'bg-[#008177] text-[#e0e0e0]'
+          }`}
+        >
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
           <h2 className="text-xl font-bold mb-4 text-center">Service Area Restriction</h2>
-          <p className="text-sm text-center mb-6 text-[#e0e0e0] leading-6">
-            Sorry! Ulat PH is currently only available within Metro Manila.
+          <p className="text-sm text-center mb-6 leading-6">
+            Sorry, Ulat PH is currently only available within Metro Manila.
+            <br />
             Please enter a location within Metro Manila to continue.
           </p>
           <div className="flex gap-3">
             <button
               onClick={() => setShowLocationRestrictionModal(false)}
-              className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+              className="text-white py-2 px-6 rounded-full transition-colors cursor-pointer"
             >
               Try Again
             </button>
