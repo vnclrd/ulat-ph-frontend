@@ -70,39 +70,33 @@ function App() {
   };
 
   const handleRedirect = async () => {
-    setLoading(true);
+    if (!location.trim()) return;
+
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/geocode`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ address: location }),
-        }
-      );
+      setLoading(true);
+
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/save-geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location }),
+      });
+
       const data = await response.json();
 
-      if (data.success) {
-        // Save the new location to state and session storage
-        saveLocationData({
-          lat: data.latitude,
-          lng: data.longitude,
-          name: data.location_name,
-        });
+      if (response.ok) {
+        localStorage.setItem('savedLocation', JSON.stringify({
+          name: data.data.name,
+          lat: data.data.latitude,
+          lng: data.data.longitude
+        }));
 
-        // Navigate to the core page
         navigate('/core');
       } else {
-        setMessage({ text: data.message, type: 'error' });
+        showMessage(data.error || 'Something went wrong', 'error');
       }
     } catch (error) {
-      console.error('Geocoding error:', error);
-      setMessage({
-        text: 'Failed to find location. Please try a more specific address.',
-        type: 'error',
-      });
+      console.error(error);
+      showMessage('Failed to save location. Check your backend.', 'error');
     } finally {
       setLoading(false);
     }
