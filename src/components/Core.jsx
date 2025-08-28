@@ -4,24 +4,15 @@ import 'leaflet/dist/leaflet.css'
 import LocationContent from './LocationContent.jsx'
 import { Moon, Sun } from 'lucide-react'
 import { useDarkMode } from './DarkModeContext.jsx'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 function Core() {
-
   // Supabase
   const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'
 
   // Get custom location from App.jsx
   const location = useLocation()
-  const navigate = useNavigate();
-
-  const { latitude, longitude } = location.state || {}
-  useEffect(() => {
-    if (!latitude || !longitude) {
-      navigate('/');
-    }
-  }, [latitude, longitude, navigate]);
 
   // Toggle Dark Mode
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -254,30 +245,25 @@ function Core() {
   // Function to refresh reports data
   const fetchReports = async () => {
     try {
-      // Use location.state if available, fallback to savedLocationData
-      const lat = latitude || savedLocationData?.lat;
-      const lng = longitude || savedLocationData?.lng;
-
+      const { lat, lng } = savedLocationData
       if (!lat || !lng) {
-        console.warn('Location not available. Cannot fetch nearby reports.');
-        return;
+        console.warn('Location not available. Cannot fetch nearby reports.')
+        return
       }
 
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}`
-      );
-
+      )
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        throw new Error('Failed to fetch reports')
       }
-
-      const data = await response.json();
-      setAllReports(data.reports);
-      setReports(data.reports); // Use filtered reports from backend
+      const data = await response.json()
+      setAllReports(data.reports)
+      setReports(data.reports) // Directly use the filtered data from backend
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('Error fetching reports:', error)
     }
-  };
+  }
 
   // Function to handle sightings button click
   const handleSightingsClick = async (reportId) => {
