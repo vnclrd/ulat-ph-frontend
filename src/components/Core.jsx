@@ -1,34 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import LocationContent from './LocationContent.jsx';
-import { Moon, Sun } from 'lucide-react';
-import { useDarkMode } from './DarkModeContext.jsx';
+import React, { useEffect, useState } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import LocationContent from './LocationContent.jsx'
+import { Moon, Sun } from 'lucide-react'
+import { useDarkMode } from './DarkModeContext.jsx'
+
+import { useLocation } from 'react-router-dom'
 
 function Core() {
   // Supabase
-  const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry';
+  const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'
+
+  // Get custom location from App.jsx
+  const location = useLocation()
 
   // Toggle Dark Mode
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   const handleToggle = () => {
-    toggleDarkMode();
-  };
+    toggleDarkMode()
+  }
 
   // Change Language
   const [isFilipino, setIsFilipino] = useState(() => {
-    const savedLang = localStorage.getItem('isFilipino');
-    return savedLang === 'true' ? true : false;
-  });
+    const savedLang = localStorage.getItem('isFilipino')
+    return savedLang === 'true' ? true : false
+  })
 
   useEffect(() => {
-    localStorage.setItem('isFilipino', isFilipino);
-  }, [isFilipino]);
+    localStorage.setItem('isFilipino', isFilipino)
+  }, [isFilipino])
 
   const changeLang = () => {
-    setIsFilipino(!isFilipino);
-  };
+    setIsFilipino(!isFilipino)
+  }
 
   const translations = {
     en: {
@@ -102,86 +107,86 @@ function Core() {
       footer_make_report: 'Gumawa ng Report',
       footer_settings: 'Settings',
     },
-  };
+  }
 
   // FILE SAVING COMPONENTS
-  const [customIssue, setCustomIssue] = useState('');
-  const [description, setDescription] = useState('');
-  const [uploadedImage, setUploadedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
+  const [customIssue, setCustomIssue] = useState('')
+  const [description, setDescription] = useState('')
+  const [uploadedImage, setUploadedImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
 
   // View reports on Reports Page
-  const [reports, setReports] = useState([]);
-  const [allReports, setAllReports] = useState([]);
-  const [selectedReport, setSelectedReport] = useState(null);
+  const [reports, setReports] = useState([])
+  const [allReports, setAllReports] = useState([])
+  const [selectedReport, setSelectedReport] = useState(null)
 
   // Button click tracking states
-  const [buttonLoading, setButtonLoading] = useState({});
-  const [buttonStatus, setButtonStatus] = useState(null);
+  const [buttonLoading, setButtonLoading] = useState({})
+  const [buttonStatus, setButtonStatus] = useState(null)
 
-  const [activeDiv, setActiveDiv] = useState('div1');
+  const [activeDiv, setActiveDiv] = useState('div1')
   const baseButtonClassesFooter =
-    'flex flex-col items-center justify-center w-[25%] h-[60px] cursor-pointer';
+    'flex flex-col items-center justify-center w-[25%] h-[60px] cursor-pointer'
 
-  const [selectedIssue, setSelectedIssue] = useState('');
-  const [locationName, setLocationName] = useState('Fetching location...');
+  const [selectedIssue, setSelectedIssue] = useState('')
+  const [locationName, setLocationName] = useState('Fetching location...')
 
   // For already clicked verification
-  const [userClickedButtons, setUserClickedButtons] = useState({});
+  const [userClickedButtons, setUserClickedButtons] = useState({})
 
   const [savedLocationData, setSavedLocationData] = useState(() => {
-    const stored = localStorage.getItem('savedLocation');
-    return stored ? JSON.parse(stored) : {};
-  });
+    const stored = localStorage.getItem('savedLocation')
+    return stored ? JSON.parse(stored) : {}
+  })
 
   // For already clicked verification
   const checkUserButtonStatus = async (reportId) => {
-    if (!reportId) return;
+    if (!reportId) return
 
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${
           report.id
         }/user-status`
-      );
-      const result = await response.json();
+      )
+      const result = await response.json()
 
       if (result.success) {
         setUserClickedButtons((prev) => ({
           ...prev,
           [`${reportId}_sightings`]: result.has_sighting_click,
           [`${reportId}_resolved`]: result.has_resolved_click,
-        }));
+        }))
       }
     } catch (error) {
-      console.error('Error checking user button status:', error);
+      console.error('Error checking user button status:', error)
     }
-  };
+  }
 
   // Function to calculate distance between two coordinates using Haversine formula
   const getDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radius of Earth in kilometers
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const R = 6371 // Radius of Earth in kilometers
+    const dLat = ((lat2 - lat1) * Math.PI) / 180
+    const dLon = ((lon2 - lon1) * Math.PI) / 180
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
         Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in km
-    return distance;
-  };
+        Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    const distance = R * c // Distance in km
+    return distance
+  }
 
   // Function to filter reports based on location
   const filterReportsByLocation = (allReports, location) => {
     if (!location || !location.lat || !location.lng) {
-      setReports([]);
-      setSelectedReport(null);
-      return;
+      setReports([])
+      setSelectedReport(null)
+      return
     }
 
     const filtered = allReports.filter((report) => {
@@ -190,40 +195,40 @@ function Core() {
         location.lng,
         report.latitude,
         report.longitude
-      );
-      return distance <= 1; // Filter for reports within 1 km
-    });
+      )
+      return distance <= 1 // Filter for reports within 1 km
+    })
 
-    setReports(filtered);
+    setReports(filtered)
     if (filtered.length > 0) {
-      setSelectedReport(filtered[0]);
+      setSelectedReport(filtered[0])
     } else {
-      setSelectedReport(null);
+      setSelectedReport(null)
     }
-  };
+  }
 
   // Function to refresh reports data
   const fetchReports = async () => {
     try {
-      const { lat, lng } = savedLocationData;
+      const { lat, lng } = savedLocationData
       if (!lat || !lng) {
-        console.warn('Location not available. Cannot fetch nearby reports.');
-        return;
+        console.warn('Location not available. Cannot fetch nearby reports.')
+        return
       }
 
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}`
-      );
+      )
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        throw new Error('Failed to fetch reports')
       }
-      const data = await response.json();
-      setAllReports(data.reports);
-      setReports(data.reports); // Directly use the filtered data from backend
+      const data = await response.json()
+      setAllReports(data.reports)
+      setReports(data.reports) // Directly use the filtered data from backend
     } catch (error) {
-      console.error('Error fetching reports:', error);
+      console.error('Error fetching reports:', error)
     }
-  };
+  }
 
   // Function to handle sightings button click
   const handleSightingsClick = async (reportId) => {
@@ -232,10 +237,10 @@ function Core() {
       buttonLoading[`sightings-${reportId}`] ||
       userClickedButtons[`${reportId}_sightings`]
     )
-      return;
+      return
 
-    setButtonLoading((prev) => ({ ...prev, [`sightings-${reportId}`]: true }));
-    setButtonStatus(null);
+    setButtonLoading((prev) => ({ ...prev, [`sightings-${reportId}`]: true }))
+    setButtonStatus(null)
 
     try {
       const response = await fetch(
@@ -248,44 +253,44 @@ function Core() {
             'Content-Type': 'application/json',
           },
         }
-      );
+      )
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (result.success) {
         setButtonStatus({
           type: 'success',
           message: result.message,
-        });
+        })
 
         // Mark button as clicked
         setUserClickedButtons((prev) => ({
           ...prev,
           [`${reportId}_sightings`]: true,
-        }));
+        }))
 
         // Refresh reports data to get updated counts
-        await fetchReports();
+        await fetchReports()
       } else {
         setButtonStatus({
           type: 'error',
           message: result.message,
-        });
+        })
       }
     } catch (error) {
       setButtonStatus({
         type: 'error',
         message: 'Failed to record sighting',
-      });
+      })
     } finally {
       setButtonLoading((prev) => ({
         ...prev,
         [`sightings-${reportId}`]: false,
-      }));
+      }))
       // Clear status message after 3 seconds
-      setTimeout(() => setButtonStatus(null), 3000);
+      setTimeout(() => setButtonStatus(null), 3000)
     }
-  };
+  }
 
   // Function to handle resolved button click
   const handleResolvedClick = async (reportId) => {
@@ -294,10 +299,10 @@ function Core() {
       buttonLoading[`resolved-${reportId}`] ||
       userClickedButtons[`${reportId}_resolved`]
     )
-      return;
+      return
 
-    setButtonLoading((prev) => ({ ...prev, [`resolved-${reportId}`]: true }));
-    setButtonStatus(null);
+    setButtonLoading((prev) => ({ ...prev, [`resolved-${reportId}`]: true }))
+    setButtonStatus(null)
 
     try {
       const response = await fetch(
@@ -308,79 +313,111 @@ function Core() {
             'Content-Type': 'application/json',
           },
         }
-      );
+      )
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (result.success) {
         setButtonStatus({
           type: 'success',
           message: result.message,
-        });
+        })
 
         // Mark button as clicked
         setUserClickedButtons((prev) => ({
           ...prev,
           [`${reportId}_resolved`]: true,
-        }));
+        }))
 
         // If report was deleted, clear selection
         if (result.report_deleted) {
-          setSelectedReport(null);
+          setSelectedReport(null)
         }
 
         // Refresh reports data to get updated counts
-        await fetchReports();
+        await fetchReports()
       } else {
         setButtonStatus({
           type: 'error',
           message: result.message,
-        });
+        })
       }
     } catch (error) {
       setButtonStatus({
         type: 'error',
         message: 'Failed to record resolution',
-      });
+      })
     } finally {
       setButtonLoading((prev) => ({
         ...prev,
         [`resolved-${reportId}`]: false,
-      }));
+      }))
       // Clear status message after 3 seconds
-      setTimeout(() => setButtonStatus(null), 3000);
+      setTimeout(() => setButtonStatus(null), 3000)
     }
-  };
+  }
 
   // Update your selectedReport useEffect or add this
   useEffect(() => {
     if (selectedReport?.id) {
-      checkUserButtonStatus(selectedReport.id);
+      checkUserButtonStatus(selectedReport.id)
     }
-  }, [selectedReport?.id]);
+  }, [selectedReport?.id])
 
   // Fetch reports from backend (reports.json) and filter them based on location
   useEffect(() => {
-    fetchReports();
-  }, [savedLocationData]);
+    fetchReports()
+  }, [savedLocationData])
 
   // Load saved location on mount
   useEffect(() => {
+    const saved = localStorage.getItem('savedLocation')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setSavedLocationData(parsed)
+        setLocationName(parsed.name || 'Unknown location')
+      } catch (err) {
+        console.error('Failed to parse saved location:', err)
+      }
+    }
+  }, [])
+
+  // Update the useEffect that loads saved location to also check navigation state
+  useEffect(() => {
+    // Check if we have navigation state with location data
+    if (location.state && location.state.latitude && location.state.longitude) {
+      const newLocationData = {
+        name: location.state.locationName || 'Selected Location',
+        lat: location.state.latitude,
+        lng: location.state.longitude,
+      };
+      
+      // Update state
+      setSavedLocationData(newLocationData);
+      setLocationName(newLocationData.name);
+      
+      // Save to localStorage for future use
+      localStorage.setItem('savedLocation', JSON.stringify(newLocationData));
+      
+      return; // Exit early, don't try to load from localStorage or geolocation
+    }
+
+    // If no navigation state, try localStorage
     const saved = localStorage.getItem('savedLocation');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         setSavedLocationData(parsed);
         setLocationName(parsed.name || 'Unknown location');
+        return; // Exit early, don't use geolocation
       } catch (err) {
         console.error('Failed to parse saved location:', err);
       }
     }
-  }, []);
 
-  // Detect user's current location automatically if no saved location
-  useEffect(() => {
-    if (!savedLocationData.lat && navigator.geolocation) {
+    // If no saved location and no navigation state, detect current location as fallback
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const newLocation = {
           name: 'Your Current Location',
@@ -389,73 +426,74 @@ function Core() {
         };
         setSavedLocationData(newLocation);
         setLocationName(newLocation.name);
+        localStorage.setItem('savedLocation', JSON.stringify(newLocation));
       });
     }
-  }, [savedLocationData.lat]);
+  }, [location.state]); // Add location.state as dependency
 
   // Update locationName when savedLocationData changes
   useEffect(() => {
     if (savedLocationData.name) {
-      setLocationName(savedLocationData.name);
+      setLocationName(savedLocationData.name)
     }
-  }, [savedLocationData]);
+  }, [savedLocationData])
 
   // Handler functions for image saving
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
-      setUploadedImage(file);
+      setUploadedImage(file)
 
       // Create preview
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = (e) => {
-        setImagePreview(e.target.result);
-      };
-      reader.readAsDataURL(file);
+        setImagePreview(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   // Handler function for uploaded image discarding
   const handleDiscardImage = () => {
-    setUploadedImage(null);
-    setImagePreview('');
+    setUploadedImage(null)
+    setImagePreview('')
     // Reset file input
-    const fileInput = document.querySelector("input[type='file']");
-    if (fileInput) fileInput.value = '';
-  };
+    const fileInput = document.querySelector("input[type='file']")
+    if (fileInput) fileInput.value = ''
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus(null);
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus(null)
 
     try {
       // Validation
       if (!selectedIssue) {
-        throw new Error('Please select an issue type');
+        throw new Error('Please select an issue type')
       }
 
       if (selectedIssue === 'custom' && !customIssue.trim()) {
-        throw new Error('Please describe the custom issue');
+        throw new Error('Please describe the custom issue')
       }
 
       if (!description.trim()) {
-        throw new Error('Please provide a description');
+        throw new Error('Please provide a description')
       }
 
       // Prepare form data
-      const formData = new FormData();
+      const formData = new FormData()
 
       if (uploadedImage) {
-        formData.append('image', uploadedImage);
+        formData.append('image', uploadedImage)
       }
 
-      formData.append('issueType', selectedIssue);
-      formData.append('customIssue', customIssue);
-      formData.append('description', description);
-      formData.append('location', locationName);
-      formData.append('latitude', savedLocationData.lat);
-      formData.append('longitude', savedLocationData.lng);
+      formData.append('issueType', selectedIssue)
+      formData.append('customIssue', customIssue)
+      formData.append('description', description)
+      formData.append('location', locationName)
+      formData.append('latitude', savedLocationData.lat)
+      formData.append('longitude', savedLocationData.lng)
 
       // Submit to backend
       const response = await fetch(
@@ -464,9 +502,9 @@ function Core() {
           method: 'POST',
           body: formData,
         }
-      );
+      )
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (result.success) {
         setSubmitStatus({
@@ -474,45 +512,45 @@ function Core() {
           message: isFilipino
             ? translations.fil.make_report_submit_success
             : translations.en.make_report_submit_success,
-        });
+        })
 
         // Reset form
-        setSelectedIssue('');
-        setCustomIssue('');
-        setDescription('');
-        handleDiscardImage();
+        setSelectedIssue('')
+        setCustomIssue('')
+        setDescription('')
+        handleDiscardImage()
 
         // Refresh reports data
-        await fetchReports();
+        await fetchReports()
       } else {
         throw new Error(
           result.message ||
             (isFilipino
               ? translations.fil.make_report_submit_error
               : translations.en.make_report_submit_error)
-        );
+        )
       }
     } catch (error) {
       setSubmitStatus({
         type: 'error',
         message: error.message,
-      });
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleIssueChange = (e) => {
-    setSelectedIssue(e.target.value);
-  };
+    setSelectedIssue(e.target.value)
+  }
 
   // Handle location updates from LocationContent
   const handleLocationUpdate = (newLocationData) => {
-    setSavedLocationData(newLocationData);
-    setLocationName(newLocationData.name);
+    setSavedLocationData(newLocationData)
+    setLocationName(newLocationData.name)
     // Save to localStorage
-    localStorage.setItem('savedLocation', JSON.stringify(newLocationData));
-  };
+    localStorage.setItem('savedLocation', JSON.stringify(newLocationData))
+  }
 
   const DefaultIcon = L.icon({
     iconUrl:
@@ -521,8 +559,8 @@ function Core() {
       'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
-  });
-  L.Marker.prototype.options.icon = DefaultIcon;
+  })
+  L.Marker.prototype.options.icon = DefaultIcon
 
   return (
     <div className='flex flex-col w-full min-h-screen bg-[#009688]'>
@@ -1425,7 +1463,7 @@ function Core() {
         </button>
       </footer>
     </div>
-  );
+  )
 }
 
-export default Core;
+export default Core
