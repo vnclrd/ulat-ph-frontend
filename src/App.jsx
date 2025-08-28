@@ -69,6 +69,32 @@ function App() {
     setTimeout(() => setMessage({ text: '', type: '' }), 5000) // Hide after 5 seconds
   }
 
+   // Function to check if location is within Metro Manila
+  const isWithinMetroManila = (locationName) => {
+    const metroManilaKeywords = [
+      'metro manila',
+      'manila',
+      'quezon city',
+      'makati',
+      'taguig',
+      'pasig',
+      'mandaluyong',
+      'san juan',
+      'marikina',
+      'pasay',
+      'parañaque',
+      'las piñas',
+      'muntinlupa',
+      'caloocan',
+      'malabon',
+      'navotas',
+      'valenzuela'
+    ];
+
+    const locationLower = locationName.toLowerCase();
+    return metroManilaKeywords.some(keyword => locationLower.includes(keyword));
+  };
+
   const handleRedirect = async () => {
     if (!location.trim()) {
         setMessage({ text: 'Please enter a location.', type: 'error' })
@@ -161,6 +187,28 @@ function App() {
       {message.text && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${message.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
           {message.text}
+        </div>
+      )}
+
+      {/* Metro Manila Restriction Modal */}
+      {showLocationRestrictionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+            <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
+            <h2 className="text-xl font-bold mb-4 text-center">Service Area Restriction</h2>
+            <p className="text-sm text-center mb-6 text-[#e0e0e0] leading-6">
+              Sorry! Ulat PH is currently only available within Metro Manila. 
+              Please enter a location within Metro Manila to continue.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLocationRestrictionModal(false)}
+                className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
