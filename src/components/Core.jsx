@@ -5,6 +5,7 @@ import LocationContent from './LocationContent.jsx'
 import { Moon, Sun } from 'lucide-react'
 import { useDarkMode } from './DarkModeContext.jsx'
 import { useLocation } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 
 function Core() {
   // Supabase
@@ -16,12 +17,44 @@ function Core() {
   // Toggle Dark Mode
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
-  // Modal for success button click
-  
-
   const handleToggle = () => {
     toggleDarkMode()
   }
+
+  // Device recognition
+  const [deviceId] = useState(() => {
+    let id = localStorage.getItem('device_id')
+    if (!id) {
+      id = uuidv4()
+      localStorage.setItem('device_id', id)
+    }
+    return id
+  })
+
+  useEffect(() => {
+    const fetchUserStatus = async () => {
+      if (!selectedReport?.id) return
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/reports/${selectedReport.id}/user-status?device_id=${deviceId}`
+        )
+        const result = await response.json()
+
+        if (result.success) {
+          setUserClickedButtons((prev) => ({
+            ...prev,
+            [`${selectedReport.id}_sightings`]: result.has_sighting_click,
+            [`${selectedReport.id}_resolved`]: result.has_resolved_click,
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching user status:', error)
+      }
+    }
+
+    fetchUserStatus()
+  }, [selectedReport?.id, deviceId])
 
   // Change Language
   const [isFilipino, setIsFilipino] = useState(() => {
@@ -250,13 +283,14 @@ function Core() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ device_id: deviceId }),
         }
       )
 
       const result = await response.json()
 
       if (result.success) {
-        // Update counts locally instead of waiting for fetchReports()
+        // Update local reports list instantly
         setReports((prevReports) =>
           prevReports.map((report) =>
             report.id === reportId
@@ -271,7 +305,7 @@ function Core() {
           )
         )
 
-        // Update selected report if it's currently displayed
+        // Update selected report instantly
         if (selectedReport?.id === reportId) {
           setSelectedReport((prev) => ({
             ...prev,
@@ -288,6 +322,7 @@ function Core() {
           [`${reportId}_sightings`]: true,
         }))
 
+        // Show success modal
         setButtonStatus({
           type: 'success',
           message: result.message,
@@ -329,13 +364,14 @@ function Core() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ device_id: deviceId }),
         }
       )
 
       const result = await response.json()
 
       if (result.success) {
-        // Update counts locally
+        // 🔹 Update local reports list instantly
         setReports((prevReports) =>
           prevReports.map((report) =>
             report.id === reportId
@@ -350,7 +386,7 @@ function Core() {
           )
         )
 
-        // Update selected report if it's currently displayed
+        // 🔹 Update selected report instantly
         if (selectedReport?.id === reportId) {
           setSelectedReport((prev) => ({
             ...prev,
@@ -367,6 +403,7 @@ function Core() {
           [`${reportId}_resolved`]: true,
         }))
 
+        // Show success modal
         setButtonStatus({
           type: 'success',
           message: result.message,
