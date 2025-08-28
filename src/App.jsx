@@ -207,12 +207,12 @@ function App() {
       >
         <div
           className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
-            isDarkMode ? 'bg-[#1e2a44] text-[#a0a0a0]' : 'bg-[#008177] text-[#e0e0e0]'
+            isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'
           }`}
         >
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
           <h2 className="text-xl font-bold mb-4 text-center">Service Area Restriction</h2>
-          <p className="text-sm text-center mb-6 leading-6">
+          <p className="text-md text-center mb-6 leading-6">
             Sorry, Ulat PH is currently only available within Metro Manila.
             <br />
             Please enter a location within Metro Manila to continue.
@@ -220,7 +220,10 @@ function App() {
           <div className="flex gap-3">
             <button
               onClick={() => setShowLocationRestrictionModal(false)}
-              className="text-white py-2 px-6 rounded-full transition-colors cursor-pointer"
+              className={`
+                text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
+                ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
+                `}
             >
               Try Again
             </button>
