@@ -143,7 +143,7 @@ function Core() {
     return stored ? JSON.parse(stored) : {}
   })
 
-  // For already clicked verification
+  // ============================== Function to Check if User Already Clicked the Buttons ==============================
   const checkUserButtonStatus = async (reportId) => {
     if (!reportId) return
 
@@ -167,7 +167,7 @@ function Core() {
     }
   }
 
-  // Function to calculate distance between two coordinates using Haversine formula
+  // ============================== Function to Calculate Distance Between Two Coordinates (Lat, Long) using Haversine Formula ==============================
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371 // Radius of Earth in kilometers
     const dLat = ((lat2 - lat1) * Math.PI) / 180
@@ -183,7 +183,7 @@ function Core() {
     return distance
   }
 
-  // Function to filter reports based on location
+  // ============================== Function to Filter Reports Based on Location ==============================
   const filterReportsByLocation = (allReports, location) => {
     if (!location || !location.lat || !location.lng) {
       setReports([])
@@ -209,7 +209,7 @@ function Core() {
     }
   }
 
-  // Function to refresh reports data
+  // ============================== Function to Refresh Reports Data ==============================
   const fetchReports = async () => {
     try {
       const { lat, lng } = savedLocationData
@@ -236,7 +236,7 @@ function Core() {
     }
   }
 
-  // Function to handle sightings button click
+  // ============================== Function to Handle Sightings Button Click ==============================
   const handleSightingsClick = async (reportId) => {
     if (
       !reportId ||
@@ -287,10 +287,14 @@ function Core() {
         }
 
         // Mark button as clicked
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_sightings`]: true,
-        }))
+        setUserClickedButtons((prev) => {
+          const updated = {
+            ...prev,
+            [`${reportId}_sightings`]: true, // or resolved
+          }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
+        })
 
         setButtonStatus({
           type: 'success',
@@ -315,7 +319,7 @@ function Core() {
     }
   }
 
-  // Function to handle resolved button click
+  // ============================== Function to Handle Resolved Button Click ==============================
   const handleResolvedClick = async (reportId) => {
     if (
       !reportId ||
@@ -366,10 +370,14 @@ function Core() {
         }
 
         // Mark button as clicked
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_resolved`]: true,
-        }))
+        setUserClickedButtons((prev) => {
+          const updated = {
+            ...prev,
+            [`${reportId}_resolved`]: true, // or resolved
+          }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
+        })
 
         setButtonStatus({
           type: 'success',
@@ -393,6 +401,14 @@ function Core() {
       }))
     }
   }
+
+  // ============================== Load Clicked Buttons ==============================
+  useEffect(() => {
+    const stored = localStorage.getItem("userClickedButtons")
+    if (stored) {
+      setUserClickedButtons(JSON.parse(stored))
+    }
+  }, [])
 
   // Update your selectedReport useEffect or add this
   useEffect(() => {
