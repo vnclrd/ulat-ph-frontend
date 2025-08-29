@@ -978,18 +978,34 @@ function Core() {
               </p>
             </div>
 
-            {/* Status Message */}
-            {submitStatus && (
+            {/* Submit Status Modal */}
+            <div
+              className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
+                submitStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
+            >
               <div
-                className={`w-full sm:w-[90%] md:w-[600px] p-3 rounded-lg mb-4 text-center ${
-                  submitStatus.type === 'success'
-                    ? 'bg-green-600 text-[#e0e0e0]'
-                    : 'bg-red-600 text-[#e0e0e0]'
+                className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
+                  isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'
                 }`}
               >
-                {submitStatus.message}
+                <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
+                <h2 className="text-xl font-bold mb-4 text-center">
+                  {submitStatus?.type === 'success' ? 'Success' : 'Error'}
+                </h2>
+                <p className="text-md text-center mb-6 leading-6">{submitStatus?.message}</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setSubmitStatus(null)}
+                    className={`text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer ${
+                      isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'
+                    }`}
+                  >
+                    Okay!
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Uploaded photo preview */}
             <div
