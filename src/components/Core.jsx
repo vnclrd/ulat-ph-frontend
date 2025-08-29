@@ -983,18 +983,19 @@ function Core() {
               <div className='flex gap-3'>
                 {/* Sightings Button */}
                 <button
-                  disabled={userClickedButtons[`${selectedReport?.id}_sightings`]}
-                  onClick={() => handleVote(selectedReport?.id, "sighting")}
+                  disabled={userClickedButtons[`${report.id}_sightings`]}
+                  onClick={() => handleVote(report.id, "sighting")}
                   className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${selectedReport?.id}_sightings`]
+                    userClickedButtons[`${report.id}_sightings`]
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
                   },
                   ${
-                    isDarkMode
-                      ? 'bg-[#040507] hover:bg-[#212730]'
-                      : 'bg-[#00786d] hover:bg-[#006b61]'
-                  }`}
+                      isDarkMode
+                        ? 'bg-[#040507] hover:bg-[#212730]'
+                        : 'bg-[#00786d] hover:bg-[#006b61]'
+                    }
+                  `}
                   /* onClick={() => handleSightingsClick(selectedReport?.id)} */
                   /* disabled={
                     !selectedReport ||
@@ -1036,18 +1037,19 @@ function Core() {
 
                 {/* Resolved Button */}
                 <button
-                  disabled={userClickedButtons[`${selectedReport?.id}_resolved`]}
-                  onClick={() => handleVote(selectedReport?.id, "resolved")}
+                  disabled={userClickedButtons[`${report.id}_resolved`]}
+                  onClick={() => handleVote(report.id, "resolved")}
                   className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${selectedReport?.id}_resolved`]
+                    userClickedButtons[`${report.id}_resolved`]
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
                   },
                   ${
-                    isDarkMode
-                      ? 'bg-[#040507] hover:bg-[#212730]'
-                      : 'bg-[#00786d] hover:bg-[#006b61]'
-                  }`}
+                      isDarkMode
+                        ? 'bg-[#040507] hover:bg-[#212730]'
+                        : 'bg-[#00786d] hover:bg-[#006b61]'
+                    }
+                  `}
                   /* onClick={() => handleResolvedClick(selectedReport?.id)}
                   disabled={
                     !selectedReport ||
@@ -1069,7 +1071,7 @@ function Core() {
                 >
                   <img
                     src='/resolved-icon.png'
-                    alt='Resolved Icon'
+                    alt='Vision Icon'
                     className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2 ${
                       userClickedButtons[`${selectedReport?.id}_resolved`]
                         ? 'opacity-60'
