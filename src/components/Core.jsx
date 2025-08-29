@@ -225,8 +225,12 @@ function Core() {
         throw new Error('Failed to fetch reports')
       }
       const data = await response.json()
-      setAllReports(data.reports)
-      setReports(data.reports) // Directly use the filtered data from backend
+      // Sort reports by sightings count (highest first)
+      const sortedReports = [...data.reports].sort(
+        (a, b) => (b.sightings?.count || 0) - (a.sightings?.count || 0)
+      )
+      setAllReports(sortedReports)
+      setReports(sortedReports)
     } catch (error) {
       console.error('Error fetching reports:', error)
     }
