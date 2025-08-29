@@ -7,51 +7,26 @@ import App from "./App.jsx"
 import Core from "./components/Core.jsx"
 import { DarkModeProvider } from "./components/DarkModeContext.jsx"
 
-// Page transition variants for iOS-like animation
-const pageVariants = {
-  initial: (direction) => ({
-    x: direction > 0 ? 300 : -300, // if going forward → slide from right, else from left
-    opacity: 1, // keep both pages visible
-    position: "absolute", // prevent layout shift
-    width: "100%",
-  }),
-  animate: {
-    x: 0,
-    opacity: 1,
-    position: "absolute",
-    width: "100%",
-  },
-  exit: (direction) => ({
-    x: direction > 0 ? -300 : 300, // slide App.jsx left, Core.jsx comes from right
-    opacity: 1,
-    position: "absolute",
-    width: "100%",
-  }),
-}
-
-const transition = {
-  duration: 0.35,
-  ease: "easeInOut",
-}
+const transition = { duration: 0.35, ease: "easeInOut" }
 
 function AnimatedRoutes() {
   const location = useLocation()
-  const isGoingForward = location.pathname === "/core" ? 1 : -1
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <AnimatePresence initial={false} custom={isGoingForward}>
+    // Make a stacking context so absolute pages overlap correctly
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <AnimatePresence mode="sync" initial={false}>
         <Routes location={location} key={location.pathname}>
-          {/* App.jsx */}
+          {/* App.jsx (first page shows immediately, no fade, no offscreen start) */}
           <Route
             path="/"
             element={
               <motion.div
-                custom={isGoingForward}
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
+                className="absolute inset-0"     // fill the viewport
+                style={{ willChange: "transform" }}
+                initial={{ x: 0, opacity: 1 }}   // don't start offscreen
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -300, opacity: 1 }}   // slide out to the left
                 transition={transition}
               >
                 <App />
@@ -59,16 +34,16 @@ function AnimatedRoutes() {
             }
           />
 
-          {/* Core.jsx */}
+          {/* Core.jsx (slides in from the right immediately) */}
           <Route
             path="/core"
             element={
               <motion.div
-                custom={isGoingForward}
-                variants={pageVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
+                className="absolute inset-0"
+                style={{ willChange: "transform" }}
+                initial={{ x: 300, opacity: 1 }} // start just offscreen to the right
+                animate={{ x: 0, opacity: 1 }}   // slide into place
+                exit={{ x: 300, opacity: 1 }}    // when leaving, slide back right
                 transition={transition}
               >
                 <Core />
