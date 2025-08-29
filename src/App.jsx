@@ -276,7 +276,7 @@ function App() {
             {/* Conditional Rendering */}
             {detecting ? (
               // Loading spinner icon
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div>
             ) : (
               // Original navigation icon
               <img src="/navigation-icon.png" alt="Target Icon" className="w-6 h-6" />
@@ -300,7 +300,14 @@ function App() {
                 : 'bg-gray-300 cursor-not-allowed'
             }`}
           >
-            <img src='/arrow-icon.png' alt='Arrow Icon' className='w-5 h-5' />
+            {/* Conditional Rendering */}
+            {loading ? (
+              // Loading spinner icon
+              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div>
+            ) : (
+              // Original arrow icon
+              <img src="/arrow-icon.png" alt="Arrow Icon" className="w-5 h-5" />
+            )}
           </button>
         </div>
         <p className='text-[#e0e0e0] text-xs mt-4 lg:mt-6 italic'>Tip: You can pin your exact location later.</p>
