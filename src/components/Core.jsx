@@ -178,42 +178,63 @@ function Core() {
     }));
   };
 
+  useEffect(() => {
+    if (selectedReport?.id) {
+      checkUserVoteStatus(selectedReport.id);
+    }
+  }, [selectedReport?.id]);
+
   // ================== Handle Vote (Generic) ==================
   const handleVote = async (reportId, type) => {
-    if (!reportId) return;
+    if (!reportId || buttonLoading[`${type}-${reportId}`]) return;
 
     try {
       // Start loading state
       setButtonLoading(prev => ({
         ...prev,
-        [`${type}-${reportId}`]: true
+        [`${type}-${reportId}`]: true,
       }));
 
-      // Update Supabase
-      if (type === "sighting") {
-        await supabase
-          .from("reports")
-          .update({ sightings: supabase.rpc("increment", { x: 1 }) })
-          .eq("id", reportId);
-      } else if (type === "resolved") {
-        await supabase
-          .from("reports")
-          .update({ resolved: supabase.rpc("increment", { x: 1 }) })
-          .eq("id", reportId);
+      // Insert or update in Supabase report_votes table
+      const { error } = await supabase
+        .from("report_votes")
+        .insert({
+          report_id: reportId,
+          user_id: userId,
+          action: type,
+        });
+
+      if (error) {
+        console.error("Vote failed:", error);
+        return;
       }
 
-      // Update local state so button gets disabled immediately
+      // Update local state → disable button immediately
       setUserClickedButtons(prev => ({
         ...prev,
         [`${reportId}_${type === "sighting" ? "sightings" : "resolved"}`]: true,
       }));
-    } catch (error) {
-      console.error("Vote failed:", error);
+
+      // Optionally, increment local report counts
+      setReports(prevReports =>
+        prevReports.map(report =>
+          report.id === reportId
+            ? {
+                ...report,
+                [type]: {
+                  ...report[type],
+                  count: (report[type]?.count || 0) + 1,
+                },
+              }
+            : report
+        )
+      );
+    } catch (err) {
+      console.error("Unexpected vote error:", err);
     } finally {
-      // Stop loading state
       setButtonLoading(prev => ({
         ...prev,
-        [`${type}-${reportId}`]: false
+        [`${type}-${reportId}`]: false,
       }));
     }
   };
@@ -947,17 +968,15 @@ function Core() {
               <div className='flex gap-3'>
                 {/* Sightings Button */}
                 <button
-                  disabled={userClickedButtons[`${selectedReport?.id}_sightings`]}
+                  disabled={
+                    buttonLoading[`sightings-${selectedReport?.id}`] ||
+                    userClickedButtons[`${selectedReport?.id}_sightings`]
+                  }
                   onClick={() => handleVote(selectedReport?.id, "sighting")}
                   className={`px-3 py-2 rounded-lg ${
                     userClickedButtons[`${selectedReport?.id}_sightings`]
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
-                  },
-                  ${
-                    isDarkMode
-                      ? 'bg-[#040507] hover:bg-[#212730]'
-                      : 'bg-[#00786d] hover:bg-[#006b61]'
                   }`}
                   /* onClick={() => handleSightingsClick(selectedReport?.id)} */
                   /* disabled={
@@ -978,7 +997,12 @@ function Core() {
                     }
                   `} */
                 >
-                  <img
+                  {buttonLoading[`sightings-${selectedReport?.id}`]
+                    ? "Loading..."
+                    : userClickedButtons[`${selectedReport?.id}_sightings`]
+                    ? translations.en.reports_seen
+                    : translations.en.reports_see}
+                  {/* <img
                     src='/vision-icon.png'
                     alt='Vision Icon'
                     className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2 ${
@@ -995,22 +1019,20 @@ function Core() {
                     ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_see
-                    : translations.en.reports_see}
+                    : translations.en.reports_see} */}
                 </button>
 
                 {/* Resolved Button */}
                 <button
-                  disabled={userClickedButtons[`${selectedReport?.id}_resolved`]}
+                  disabled={
+                    buttonLoading[`resolved-${selectedReport?.id}`] ||
+                    userClickedButtons[`${selectedReport?.id}_resolved`]
+                  }
                   onClick={() => handleVote(selectedReport?.id, "resolved")}
                   className={`px-3 py-2 rounded-lg ${
                     userClickedButtons[`${selectedReport?.id}_resolved`]
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  },
-                  ${
-                    isDarkMode
-                      ? 'bg-[#040507] hover:bg-[#212730]'
-                      : 'bg-[#00786d] hover:bg-[#006b61]'
+                      : "bg-green-500 hover:bg-green-600"
                   }`}
                   /* onClick={() => handleResolvedClick(selectedReport?.id)}
                   disabled={
@@ -1031,7 +1053,12 @@ function Core() {
                     }
                   `} */
                 >
-                  <img
+                  {buttonLoading[`resolved-${selectedReport?.id}`]
+                    ? "Loading..."
+                    : userClickedButtons[`${selectedReport?.id}_resolved`]
+                    ? translations.en.reports_has_been_resolved
+                    : translations.en.reports_has_been_already_resolved}
+                  {/* <img
                     src='/resolved-icon.png'
                     alt='Resolved Icon'
                     className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2 ${
@@ -1048,7 +1075,7 @@ function Core() {
                     ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_has_been_already_resolved
-                    : translations.en.reports_has_been_already_resolved}
+                    : translations.en.reports_has_been_already_resolved} */}
                 </button>
               </div>
             </div>
