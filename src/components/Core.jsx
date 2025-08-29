@@ -5,6 +5,7 @@ import LocationContent from './LocationContent.jsx'
 import { Moon, Sun } from 'lucide-react'
 import { useDarkMode } from './DarkModeContext.jsx'
 import { useLocation } from 'react-router-dom'
+import { initProfanity, containsProfanity } from './utils/profanity'
 
 function Core() {
   // Supabase
@@ -16,8 +17,12 @@ function Core() {
   // Toggle Dark Mode
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 
-  // Modal for success button click
-  
+  // Profanity Tracking
+  const [profanityError, setProfanityError] = useState('')
+
+  useEffect(() => {
+    initProfanity()
+  }, [])
 
   const handleToggle = () => {
     toggleDarkMode()
@@ -519,6 +524,19 @@ function Core() {
     e.preventDefault()
     setIsSubmitting(true)
     setSubmitStatus(null)
+
+    // Profanity validation (final gate)
+    const combinedText =
+      `${selectedIssue === 'custom' ? customIssue : selectedIssue} ${description}`
+
+    if (containsProfanity(normalizeText(combinedText))) {
+      setIsSubmitting(false)
+      setSubmitStatus({
+        type: 'error',
+        message: 'Profanity detected. Please edit your report and try again.',
+      })
+      return
+    }
 
     try {
       // Validation
@@ -1140,17 +1158,19 @@ function Core() {
               <div className='relative w-full sm:w-[350px] mb-4'>
                 <textarea
                   name='customIssue'
-                  placeholder={
-                    isFilipino
-                      ? translations.fil.make_report_custom_issue_desc
-                      : translations.en.make_report_custom_issue_desc
-                  }
+                  placeholder={isFilipino ? translations.fil.make_report_custom_issue_desc : translations.en.make_report_custom_issue_desczx}
                   value={customIssue}
-                  onChange={(e) => setCustomIssue(e.target.value)}
-                  className='
-                    text-left w-full h-[40px] pl-5 pt-2.5 resize-none rounded-[15px] text-sm md:text-base
-                   bg-[#e0e0e0] appearance-none
-                   '
+                  onChange={(e) => {
+                    const v = e.target.value
+                    setCustomIssue(v)
+                    const textToCheck = `${v} ${description}`
+                    setProfanityError(
+                      containsProfanity(textToCheck)
+                        ? 'Please remove profanity before submitting.'
+                        : ''
+                    )
+                  }}
+                  className='text-left w-full h-[40px] pl-5 pt-2.5 resize-none rounded-[15px] text-sm md:text-base bg-[#e0e0e0] appearance-none'
                   required={selectedIssue === 'custom'}
                 />
               </div>
@@ -1159,25 +1179,37 @@ function Core() {
             {/* Description Container */}
             <textarea
               name='description'
-              placeholder={
-                isFilipino
-                  ? translations.fil.make_report_short_desc
-                  : translations.en.make_report_short_desc
-              }
+              placeholder={isFilipino ? translations.fil.make_report_short_desc : translations.en.make_report_short_desc}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+
+              onChange={(e) => {
+                const v = e.target.value
+                setDescription(v)
+                const textToCheck =
+                  `${selectedIssue === 'custom' ? customIssue : selectedIssue} ${v}`
+                setProfanityError(
+                  containsProfanity(textToCheck)
+                    ? 'Please remove profanity before submitting.'
+                    : ''
+                )
+              }}
               className={`
                 w-full sm:w-[90%] md:w-[600px] h-[100px] resize-none bg-[#009688] text-[#e0e0e0]
                 rounded-[15px] mb-5 pl-5 pr-5 pt-4 text-sm md:text-base shadow-inner placeholder-[#e0e0e0]
                 ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#008c7f]'}
-                `}
+              `}
               required
             />
+
+            {/* Disable submit button if profanity is present */}
+            {profanityError && (
+              <p className="text-red-300 text-sm mb-2">{profanityError}</p>
+            )}
 
             {/* Submit Button */}
             <button
               type='submit'
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!profanityError}
               className={`
                 flex items-center justify-center w-full sm:w-[90%] md:w-[600px] h-[50px]
                 rounded-[15px] text-base md:text-lg bg-[#009688] text-[#e0e0e0]
