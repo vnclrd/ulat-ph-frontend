@@ -155,7 +155,7 @@ function Core() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/reports/${
-          report.id
+          reportId
         }/user-status`
       )
       const result = await response.json()
@@ -1158,7 +1158,7 @@ function Core() {
               <div className='relative w-full sm:w-[350px] mb-4'>
                 <textarea
                   name='customIssue'
-                  placeholder={isFilipino ? translations.fil.make_report_custom_issue_desc : translations.en.make_report_custom_issue_desczx}
+                  placeholder={isFilipino ? translations.fil.make_report_custom_issue_desc : translations.en.make_report_custom_issue_desc}
                   value={customIssue}
                   onChange={(e) => {
                     const v = e.target.value
