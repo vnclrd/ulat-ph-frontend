@@ -5,7 +5,7 @@ import LocationContent from './LocationContent.jsx'
 import { Moon, Sun } from 'lucide-react'
 import { useDarkMode } from './DarkModeContext.jsx'
 import { useLocation } from 'react-router-dom'
-import { initProfanity, containsProfanity } from './utils/profanity'
+import { initProfanity, containsProfanity } from './profanity'
 
 function Core() {
   // Supabase
