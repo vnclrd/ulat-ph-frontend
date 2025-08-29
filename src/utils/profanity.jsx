@@ -22,12 +22,13 @@ export const normalizeText = (txt = '') =>
 export const initProfanity = () => {
   filter.reset()
   filter.loadDictionary('en') // built-in English list
-  filter.add(FILIPINO) // Filipino bad words
+  filter.add(FILIPINO) // add Filipino bad words
 
-  filter.addWhitelistWords([
+  // Remove safe words to avoid false positives
+  filter.remove([
     // English safe words
     'class', 'classic', 'pass', 'assembly', 'bass',
-    'Scunthorpe', 'assess', 'passage', 'grass', 'assistant',
+    'scunthorpe', 'assess', 'passage', 'grass', 'assistant',
 
     // Filipino safe words
     'tanggap', 'tanggapan', 'magagandang', 'pukis', 'bago',
