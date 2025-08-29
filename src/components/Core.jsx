@@ -252,171 +252,116 @@ function Core() {
     }
   }
 
-  // ============================== Function to Handle Sightings Button Click ==============================
-  const handleSightingsClick = async (reportId) => {
-    if (
-      !reportId ||
-      buttonLoading[`sightings-${reportId}`] ||
-      userClickedButtons[`${reportId}_sightings`]
-    )
-      return
+  useEffect(() => {
+    if (!user?.ui) return;
 
-    setButtonLoading((prev) => ({ ...prev, [`sightings-${reportId}`]: true }))
-    setButtonStatus(null)
+    const fetchUserVotes = async () => {
+      const { data, error } = await supabase
+        .from("report_votes")
+        .select("report_id, action")
+        .eq("user_id", user.ui);
+
+      if (error) {
+        console.error("Error fetching votes:", error);
+        return;
+      }
+
+      const clicked = {};
+      data.forEach((vote) => {
+        clicked[`${vote.report_id}_${vote.action}`] = true;
+      });
+      setUserClickedButtons(clicked);
+    };
+
+    fetchUserVotes();
+  }, [user]);
+
+  // ============================== Function to Handle Sightings and Resolved Button Click ==============================
+  const handleVote = async (reportId, action) => {
+    if (!user?.ui) {
+      setButtonStatus({
+        type: "error",
+        message: "You must be logged in to vote.",
+      });
+      return;
+    }
+
+    setButtonLoading((prev) => ({ ...prev, [`${action}-${reportId}`]: true }));
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/sightings`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
+      // Check if the user already voted for this action
+      const { data: existing } = await supabase
+        .from("report_votes")
+        .select("*")
+        .eq("report_id", reportId)
+        .eq("user_id", user.ui)
+        .eq("action", action)
+        .single();
 
-      const result = await response.json()
-
-      if (result.success) {
-        // Update counts locally instead of waiting for fetchReports()
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  sightings: {
-                    ...report.sightings,
-                    count: (report.sightings?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        )
-
-        // Update selected report if it's currently displayed
-        if (selectedReport?.id === reportId) {
-          setSelectedReport((prev) => ({
-            ...prev,
-            sightings: {
-              ...prev.sightings,
-              count: (prev.sightings?.count || 0) + 1,
-            },
-          }))
-        }
-
-        // Mark button as clicked
-        setUserClickedButtons((prev) => {
-          const updated = {
-            ...prev,
-            [`${reportId}_sightings`]: true, // or resolved
-          }
-          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
-          return updated
-        })
-
+      if (existing) {
         setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
-      } else {
-        setButtonStatus({
-          type: 'error',
-          message: result.message,
-        })
+          type: "error",
+          message: "You've already clicked this button!",
+        });
+        return;
       }
-    } catch (error) {
+
+      // Insert vote
+      const { error } = await supabase.from("report_votes").insert([
+        {
+          report_id: reportId,
+          user_id: user.ui,
+          action,
+        },
+      ]);
+
+      if (error) throw error;
+
+      // Update clicked buttons locally
+      setUserClickedButtons((prev) => ({
+        ...prev,
+        [`${reportId}_${action}`]: true,
+      }));
+
+      // Update local report counts instantly
+      setReports((prevReports) =>
+        prevReports.map((r) =>
+          r.id === reportId
+            ? {
+                ...r,
+                sightings:
+                  action === "sighting"
+                    ? { count: (r.sightings?.count || 0) + 1 }
+                    : r.sightings,
+                resolved:
+                  action === "resolved"
+                    ? { count: (r.resolved?.count || 0) + 1 }
+                    : r.resolved,
+              }
+            : r
+        )
+      );
+
       setButtonStatus({
-        type: 'error',
-        message: 'Failed to record sighting',
-      })
+        type: "success",
+        message:
+          action === "sighting"
+            ? "Thanks for confirming this report!"
+            : "Marked as resolved!",
+      });
+    } catch (err) {
+      console.error(err);
+      setButtonStatus({
+        type: "error",
+        message: "Something went wrong. Please try again.",
+      });
     } finally {
       setButtonLoading((prev) => ({
         ...prev,
-        [`sightings-${reportId}`]: false,
-      }))
+        [`${action}-${reportId}`]: false,
+      }));
     }
-  }
-
-  // ============================== Function to Handle Resolved Button Click ==============================
-  const handleResolvedClick = async (reportId) => {
-    if (
-      !reportId ||
-      buttonLoading[`resolved-${reportId}`] ||
-      userClickedButtons[`${reportId}_resolved`]
-    )
-      return
-
-    setButtonLoading((prev) => ({ ...prev, [`resolved-${reportId}`]: true }))
-    setButtonStatus(null)
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-
-      const result = await response.json()
-
-      if (result.success) {
-        // Update counts locally
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  resolved: {
-                    ...report.resolved,
-                    count: (report.resolved?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        )
-
-        // Update selected report if it's currently displayed
-        if (selectedReport?.id === reportId) {
-          setSelectedReport((prev) => ({
-            ...prev,
-            resolved: {
-              ...prev.resolved,
-              count: (prev.resolved?.count || 0) + 1,
-            },
-          }))
-        }
-
-        // Mark button as clicked
-        setUserClickedButtons((prev) => {
-          const updated = {
-            ...prev,
-            [`${reportId}_resolved`]: true, // or resolved
-          }
-          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
-          return updated
-        })
-
-        setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
-      } else {
-        setButtonStatus({
-          type: 'error',
-          message: result.message,
-        })
-      }
-    } catch (error) {
-      setButtonStatus({
-        type: 'error',
-        message: 'Failed to record resolution',
-      })
-    } finally {
-      setButtonLoading((prev) => ({
-        ...prev,
-        [`resolved-${reportId}`]: false,
-      }))
-    }
-  }
+  };
 
   // ============================== Load Clicked Buttons ==============================
   useEffect(() => {
@@ -878,11 +823,11 @@ function Core() {
               <div className='flex gap-3'>
                 {/* Sightings Button */}
                 <button
-                  onClick={() => handleSightingsClick(selectedReport?.id)}
+                  onClick={() => handleVote(selectedReport?.id, "sighting")}
                   disabled={
                     !selectedReport ||
-                    buttonLoading[`sightings-${selectedReport?.id}`] ||
-                    userClickedButtons[`${selectedReport?.id}_sightings`]
+                    buttonLoading[`sighting-${selectedReport?.id}`] ||
+                    userClickedButtons[`${selectedReport?.id}_sighting`]
                   }
                   className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
                     ${
@@ -919,7 +864,7 @@ function Core() {
 
                 {/* Resolved Button */}
                 <button
-                  onClick={() => handleResolvedClick(selectedReport?.id)}
+                  onClick={() => handleVote(selectedReport?.id, "resolved")}
                   disabled={
                     !selectedReport ||
                     buttonLoading[`resolved-${selectedReport?.id}`] ||
