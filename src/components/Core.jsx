@@ -179,77 +179,41 @@ function Core() {
   };
 
   // ================== Handle Vote (Generic) ==================
-  const handleVote = async (reportId, actionType) => {
-    if (!userId) {
-      alert("Please log in to vote.");
-      return;
-    }
-
-    // Prevent double-clicks
-    if (
-      buttonLoading[`${actionType}-${reportId}`] ||
-      userClickedButtons[`${reportId}_${actionType}`]
-    ) {
-      return;
-    }
-
-    setButtonLoading((prev) => ({ ...prev, [`${actionType}-${reportId}`]: true }));
+  const handleVote = async (reportId, type) => {
+    if (!reportId) return;
 
     try {
-      const { error } = await supabase.from("report_votes").insert([
-        {
-          report_id: reportId,
-          user_id: userId,
-          action: actionType,
-        },
-      ]);
-
-      if (error) {
-        if (error.code === "23505") {
-          // Unique constraint violation
-          setButtonStatus({
-            type: "error",
-            message: "You've already voted.",
-          });
-        } else {
-          console.error("Vote insertion error:", error);
-          setButtonStatus({
-            type: "error",
-            message: "Failed to record vote",
-          });
-        }
-      } else {
-        // Update UI immediately
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  [actionType === "sighting" ? "sightings" : "resolved"]: {
-                    ...report[actionType === "sighting" ? "sightings" : "resolved"],
-                    count:
-                      (report[actionType === "sighting" ? "sightings" : "resolved"]
-                        ?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        );
-
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_${actionType}`]: true,
-        }));
-
-        setButtonStatus({
-          type: "success",
-          message: "Vote recorded!",
-        });
-      }
-    } finally {
-      setButtonLoading((prev) => ({
+      // Start loading state
+      setButtonLoading(prev => ({
         ...prev,
-        [`${actionType}-${reportId}`]: false,
+        [`${type}-${reportId}`]: true
+      }));
+
+      // Update Supabase
+      if (type === "sighting") {
+        await supabase
+          .from("reports")
+          .update({ sightings: supabase.rpc("increment", { x: 1 }) })
+          .eq("id", reportId);
+      } else if (type === "resolved") {
+        await supabase
+          .from("reports")
+          .update({ resolved: supabase.rpc("increment", { x: 1 }) })
+          .eq("id", reportId);
+      }
+
+      // Update local state so button gets disabled immediately
+      setUserClickedButtons(prev => ({
+        ...prev,
+        [`${reportId}_${type === "sighting" ? "sightings" : "resolved"}`]: true,
+      }));
+    } catch (error) {
+      console.error("Vote failed:", error);
+    } finally {
+      // Stop loading state
+      setButtonLoading(prev => ({
+        ...prev,
+        [`${type}-${reportId}`]: false
       }));
     }
   };
