@@ -785,60 +785,110 @@ function Core() {
                   reports.map((report) => (
                     <div
                       key={report.id}
-                      className={`
-                        w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0
-                        cursor-pointer p-4
+                      className={`w-full h-auto md:h-auto rounded-[25px] p-4 mb-4 cursor-pointer
                         ${
                           selectedReport?.id === report.id
-                            ? 'border-2 border-[#e0e0e0]'
-                            : ''
-                        },
+                            ? "border-2 border-[#e0e0e0]"
+                            : ""
+                        }
                         ${
                           isDarkMode
-                            ? 'bg-[#19202b] border-[#e0e0e0]'
-                            : 'bg-[#00786d] border-[#e0e0e0]'
-                        }
-                        `}
+                            ? "bg-[#19202b] border-[#e0e0e0]"
+                            : "bg-[#00786d] border-[#e0e0e0]"
+                        }`}
                       onClick={() => setSelectedReport(report)}
                     >
-                      <div className='flex justify-between items-center w-full'>
-                        <div className='flex flex-col'>
-                          <h3 className='text-[#e0e0e0] font-bold text-base md:text-lg'>
-                            {report.issue_type === 'custom'
+                      {/* Report Info */}
+                      <div className="flex justify-between items-center w-full">
+                        <div className="flex flex-col">
+                          <h3 className="text-[#e0e0e0] font-bold text-base md:text-lg">
+                            {report.issue_type === "custom"
                               ? report.custom_issue
                               : report.issue_type}
                           </h3>
-                          <p className='text-sm text-[#a0a0a0] truncate mt-[-4px]'>
-                            {report.latitude?.toFixed(4)},{' '}
-                            {report.longitude?.toFixed(4)}
+                          <p className="text-sm text-[#a0a0a0] truncate mt-[-4px]">
+                            {report.latitude?.toFixed(4)}, {report.longitude?.toFixed(4)}
                           </p>
                         </div>
-                        <div className='flex items-center gap-2'>
-                          {/* Sightings */}
+
+                        {/* Sightings & Resolved Counts */}
+                        <div className="flex items-center gap-2">
                           <img
-                            src='/vision-icon.png'
-                            alt='Sightings Icon'
-                            className='w-[26px] h-[26px] filter invert'
+                            src="/vision-icon.png"
+                            alt="Sightings Icon"
+                            className="w-[26px] h-[26px] filter invert"
                           />
-                          <span className='text-[#e0e0e0] text-[1.25rem] mr-2'>
+                          <span className="text-[#e0e0e0] text-[1.25rem] mr-2">
                             {report.sightings?.count || 0}
                           </span>
 
-                          {/* Resolved Votes */}
                           <img
-                            src='/resolved-icon.png'
-                            alt='Resolved Icon'
-                            className='w-[26px] h-[26px]'
+                            src="/resolved-icon.png"
+                            alt="Resolved Icon"
+                            className="w-[26px] h-[26px]"
                           />
-                          <span className='text-[#e0e0e0] text-[1.25rem]'>
+                          <span className="text-[#e0e0e0] text-[1.25rem]">
                             {report.resolved?.count || 0}
                           </span>
                         </div>
                       </div>
+
+                      {/* Voting Buttons */}
+                      <div className="flex gap-3 mt-3">
+                        {/* Sightings Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // prevent modal from opening
+                            handleVote(report.id, "sighting");
+                          }}
+                          disabled={
+                            buttonLoading[`sighting-${report.id}`] ||
+                            userClickedButtons[`${report.id}_sightings`]
+                          }
+                          className={`flex items-center px-3 py-2 rounded-lg text-white transition-colors
+                            ${
+                              userClickedButtons[`${report.id}_sightings`]
+                                ? "bg-gray-500 cursor-not-allowed opacity-60"
+                                : "bg-blue-500 hover:bg-blue-600"
+                            }
+                            ${
+                              isDarkMode
+                                ? "bg-[#040507] hover:bg-[#212730]"
+                                : "bg-[#00786d] hover:bg-[#006b61]"
+                            }`}
+                        >
+                          I see this too
+                        </button>
+
+                        {/* Resolved Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVote(report.id, "resolved");
+                          }}
+                          disabled={
+                            buttonLoading[`resolved-${report.id}`] ||
+                            userClickedButtons[`${report.id}_resolved`]
+                          }
+                          className={`flex items-center px-3 py-2 rounded-lg text-white transition-colors
+                            ${
+                              userClickedButtons[`${report.id}_resolved`]
+                                ? "bg-gray-500 cursor-not-allowed opacity-60"
+                                : "bg-green-500 hover:bg-green-600"
+                            }
+                            ${
+                              isDarkMode
+                                ? "bg-[#040507] hover:bg-[#212730]"
+                                : "bg-[#00786d] hover:bg-[#006b61]"
+                            }`}
+                        >
+                          Already resolved
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
-                  <div className='text-[#e0e0e0] text-center italic mt-10'>
+                  <div className="text-[#e0e0e0] text-center italic mt-10">
                     {isFilipino
                       ? translations.fil.reports_none
                       : translations.en.reports_none}
