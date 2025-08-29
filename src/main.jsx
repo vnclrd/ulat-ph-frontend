@@ -31,9 +31,9 @@ function AnimatedRoutes() {
           element={
             <motion.div
               variants={pageVariants}
-              initial={{ x: 0, opacity: 0.5 }}
-              animate={{ x: 0, opacity: 0.5 }}
-              exit={{ x: -150, opacity: 0 }}
+              initial={{ x: 0, opacity: 1 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -300, opacity: 0 }}
               transition={transition}
             >
               <App />
