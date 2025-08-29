@@ -292,10 +292,14 @@ function Core() {
         }
 
         // Mark button as clicked
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_sightings`]: true,
-        }))
+        setUserClickedButtons((prev) => {
+          const updated = {
+            ...prev,
+            [`${reportId}_sightings`]: true, // or resolved
+          }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
+        })
 
         setButtonStatus({
           type: 'success',
@@ -371,10 +375,14 @@ function Core() {
         }
 
         // Mark button as clicked
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_resolved`]: true,
-        }))
+        setUserClickedButtons((prev) => {
+          const updated = {
+            ...prev,
+            [`${reportId}_resolved`]: true, // or resolved
+          }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
+        })
 
         setButtonStatus({
           type: 'success',
@@ -399,7 +407,15 @@ function Core() {
     }
   }
 
-  // When a report is selected, check the user's status for it from the backend
+  // ============================== Load Clicked Buttons ==============================
+  useEffect(() => {
+    const stored = localStorage.getItem("userClickedButtons")
+    if (stored) {
+      setUserClickedButtons(JSON.parse(stored))
+    }
+  }, [])
+
+  // Update your selectedReport useEffect or add this
   useEffect(() => {
     if (selectedReport?.id) {
       checkUserButtonStatus(selectedReport.id)
