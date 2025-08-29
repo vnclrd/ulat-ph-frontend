@@ -302,18 +302,18 @@ function Core() {
           return updated
         })
 
-        setSightingsStatus({
+        setButtonStatus({
           type: 'success',
           message: result.message,
         })
       } else {
-        setSightingsStatus({
+        setButtonStatus({
           type: 'error',
           message: result.message,
         })
       }
     } catch (error) {
-      setSightingsStatus({
+      setButtonStatus({
         type: 'error',
         message: 'Failed to record sighting',
       })
@@ -385,18 +385,18 @@ function Core() {
           return updated
         })
 
-        setResolvedStatus({
+        setButtonStatus({
           type: 'success',
           message: result.message,
         })
       } else {
-        setResolvedStatus({
+        setButtonStatus({
           type: 'error',
           message: result.message,
         })
       }
     } catch (error) {
-      setResolvedStatus({
+      setButtonStatus({
         type: 'error',
         message: 'Failed to record resolution',
       })
@@ -776,7 +776,7 @@ function Core() {
               {/* Success Modal */}
               <div
                 className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
-                  sightingsStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
               >
                 <div
@@ -786,9 +786,9 @@ function Core() {
                 >
                   <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
                   <h2 className="text-xl font-bold mb-4 text-center">
-                    {sightingsStatus?.type === 'success' ? 'Success' : 'Error'}
+                    {buttonStatus?.type === 'success' ? 'Success' : 'Error'}
                   </h2>
-                  <p className="text-md text-center mb-6 leading-6">{sightingsStatus?.message}</p>
+                  <p className="text-md text-center mb-6 leading-6">{buttonStatus?.message}</p>
                   <div className="flex gap-3">
                     <button
                       onClick={() => setSightingsStatus(null)}
@@ -805,7 +805,7 @@ function Core() {
               {/* Error Modal */}
               <div
                 className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
-                  resolvedStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
               >
                 <div
@@ -815,9 +815,9 @@ function Core() {
                 >
                   <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
                   <h2 className="text-xl font-bold mb-4 text-center">
-                    {resolvedStatus?.type === 'success' ? 'Success' : 'Error'}
+                    {buttonStatus?.type === 'success' ? 'Success' : 'Error'}
                   </h2>
-                  <p className="text-md text-center mb-6 leading-6">{resolvedStatus?.message}</p>
+                  <p className="text-md text-center mb-6 leading-6">{buttonStatus?.message}</p>
                   <div className="flex gap-3">
                     <button
                       onClick={() => setResolvedStatus(null)}
