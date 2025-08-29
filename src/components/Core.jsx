@@ -8,6 +8,9 @@ import { useLocation } from 'react-router-dom'
 import { initProfanity, containsProfanity, normalizeText } from '../utils/profanity'
 
 function Core() {
+  // User Authentication
+  const userId = localStorage.getItem('userId')
+
   // Supabase
   const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'
 
@@ -223,17 +226,25 @@ function Core() {
         return
       }
 
+      // Get the logged-in user's ID from localStorage
+      const userId = localStorage.getItem('userId')
+
+      // Include user_id in the request so backend can cross-match seen/resolved reports
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports?latitude=${lat}&longitude=${lng}&user_id=${userId}`
       )
+
       if (!response.ok) {
         throw new Error('Failed to fetch reports')
       }
+
       const data = await response.json()
+
       // Sort reports by sightings count (highest first)
       const sortedReports = [...data.reports].sort(
         (a, b) => (b.sightings?.count || 0) - (a.sightings?.count || 0)
       )
+
       setAllReports(sortedReports)
       setReports(sortedReports)
     } catch (error) {

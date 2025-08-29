@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDarkMode } from './components/DarkModeContext'
+import { supabase } from '../utils/supabaseClient'
+import { v4 as uuidv4 } from 'uuid'
 
 function App() {
+  // User Authentication
+  const [passwordInput, setPasswordInput] = useState('')
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null)
+
   const [location, setLocation] = useState('')
   const [loading, setLoading] = useState(false)
   const [detecting, setDetecting] = useState(false)
@@ -68,6 +74,48 @@ function App() {
   const showMessage = (text, type) => {
     setMessage({ text, type })
     setTimeout(() => setMessage({ text: '', type: '' }), 5000) // Hide after 5 seconds
+  }
+
+  const handleRegister = async () => {
+    if (!nameInput.trim() || !passwordInput.trim()) {
+      showMessage('Please enter both name and password.', 'error')
+      return
+    }
+
+    try {
+      // Generate unique UUID for the new user
+      const generatedUserId = uuidv4()
+
+      // Insert user into Supabase
+      const { data, error } = await supabase
+        .from('users')
+        .insert([
+          {
+            ui: generatedUserId,
+            name: nameInput.trim(),
+            password: passwordInput.trim(),
+          },
+        ])
+        .select()
+
+      if (error) {
+        console.error(error)
+        showMessage('Failed to register. Try again.', 'error')
+        return
+      }
+
+      // Save locally for session persistence
+      localStorage.setItem('userName', nameInput.trim())
+      localStorage.setItem('userId', generatedUserId)
+      setUserName(nameInput.trim())
+      setUserId(generatedUserId)
+
+      setShowNamePrompt(false)
+      showMessage('Registration successful!', 'success')
+    } catch (err) {
+      console.error(err)
+      showMessage('Something went wrong.', 'error')
+    }
   }
 
    // Function to check if location is within Metro Manila
@@ -231,30 +279,40 @@ function App() {
 
       {/* Name Prompt Modal */}
       {showNamePrompt && (
-        <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
-          {/* Container */}
-          <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
-            <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
-            <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
-              Join your neighbors in building a better community! With this app, you can easily crowdsource and track local
-              issues and see how others are making a difference. Your voice helps us improve our shared spaces.
-            </p>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d]"
-              placeholder="What should I call you?"
-            />
-            <button
-              onClick={handleSaveName}
-              className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
-            >
-              Let's go!
-            </button>
-          </div>
+      <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
+        <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[450px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+          <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
+          <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
+            Join your neighbors in building a better community! Register your account to start reporting and tracking local issues.
+          </p>
+
+          {/* Name Input */}
+          <input
+            type="text"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
+            placeholder="Enter your name"
+          />
+
+          {/* Password Input */}
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
+            placeholder="Enter your password"
+          />
+
+          <button
+            onClick={handleRegister}
+            className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+          >
+            Register & Continue
+          </button>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Hero Container */}
       <div className='flex flex-col items-center justify-center w-full lg:w-[1000px]'>
