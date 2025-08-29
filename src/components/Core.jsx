@@ -131,7 +131,8 @@ function Core() {
 
   // Button click tracking states
   const [buttonLoading, setButtonLoading] = useState({})
-  const [buttonStatus, setButtonStatus] = useState(null)
+  const [sightingsStatus, setSightingsStatus] = useState(null)
+  const [resolvedStatus, setResolvedStatus] = useState(null)
 
   const [activeDiv, setActiveDiv] = useState('div1')
   const baseButtonClassesFooter =
@@ -251,7 +252,7 @@ function Core() {
       return
 
     setButtonLoading((prev) => ({ ...prev, [`sightings-${reportId}`]: true }))
-    setButtonStatus(null)
+    setSightingsStatus(null)
 
     try {
       const response = await fetch(
@@ -334,7 +335,7 @@ function Core() {
       return
 
     setButtonLoading((prev) => ({ ...prev, [`resolved-${reportId}`]: true }))
-    setButtonStatus(null)
+    setResolvedStatus(null)
 
     try {
       const response = await fetch(
@@ -772,7 +773,7 @@ function Core() {
           {/* Right Panel */}
           <div className='flex items-center justify-center w-full md:w-[50%] h-auto md:h-[500px]'>
             <div className='flex flex-col w-full h-full rounded-[15px] gap-5'>
-              {/* Success / Error Modal */}
+              {/* Success Modal */}
               <div
                 className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
                   buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -790,13 +791,42 @@ function Core() {
                   <p className="text-md text-center mb-6 leading-6">{buttonStatus?.message}</p>
                   <div className="flex gap-3">
                     <button
-                      onClick={() => setButtonStatus(null)}
+                      onClick={() => setSightingsStatus(null)}
                       className={`
                         text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
                         ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
                       `}
                     >
                       Alright!
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {/* Error Modal */}
+              <div
+                className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
+                  buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
+              >
+                <div
+                  className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
+                    isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'
+                  }`}
+                >
+                  <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
+                  <h2 className="text-xl font-bold mb-4 text-center">
+                    {buttonStatus?.type === 'success' ? 'Success' : 'Error'}
+                  </h2>
+                  <p className="text-md text-center mb-6 leading-6">{buttonStatus?.message}</p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setResolvedStatus(null)}
+                      className={`
+                        text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
+                        ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
+                      `}
+                    >
+                      Try again
                     </button>
                   </div>
                 </div>
