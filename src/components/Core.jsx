@@ -151,111 +151,6 @@ function Core() {
     return stored ? JSON.parse(stored) : {}
   })
 
-
-
-  // ================== Check if User Has Already Voted ==================
-  const checkUserVoteStatus = async (reportId) => {
-    if (!userId) return;
-
-    const { data, error } = await supabase
-      .from("report_votes")
-      .select("action")
-      .eq("report_id", reportId)
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Error fetching vote status:", error);
-      return;
-    }
-
-    const hasSightingVote = data.some((v) => v.action === "sighting");
-    const hasResolvedVote = data.some((v) => v.action === "resolved");
-
-    setUserClickedButtons((prev) => ({
-      ...prev,
-      [`${reportId}_sightings`]: hasSightingVote,
-      [`${reportId}_resolved`]: hasResolvedVote,
-    }));
-  };
-
-  // ================== Handle Vote (Generic) ==================
-  const handleVote = async (reportId, actionType) => {
-    if (!userId) {
-      alert("Please log in to vote.");
-      return;
-    }
-
-    // Prevent double-clicks
-    if (
-      buttonLoading[`${actionType}-${reportId}`] ||
-      userClickedButtons[`${reportId}_${actionType}`]
-    ) {
-      return;
-    }
-
-    setButtonLoading((prev) => ({ ...prev, [`${actionType}-${reportId}`]: true }));
-
-    try {
-      const { error } = await supabase.from("report_votes").insert([
-        {
-          report_id: reportId,
-          user_id: userId,
-          action: actionType,
-        },
-      ]);
-
-      if (error) {
-        if (error.code === "23505") {
-          // Unique constraint violation
-          setButtonStatus({
-            type: "error",
-            message: "You've already voted.",
-          });
-        } else {
-          console.error("Vote insertion error:", error);
-          setButtonStatus({
-            type: "error",
-            message: "Failed to record vote",
-          });
-        }
-      } else {
-        // Update UI immediately
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  [actionType === "sighting" ? "sightings" : "resolved"]: {
-                    ...report[actionType === "sighting" ? "sightings" : "resolved"],
-                    count:
-                      (report[actionType === "sighting" ? "sightings" : "resolved"]
-                        ?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        );
-
-        setUserClickedButtons((prev) => ({
-          ...prev,
-          [`${reportId}_${actionType}`]: true,
-        }));
-
-        setButtonStatus({
-          type: "success",
-          message: "Vote recorded!",
-        });
-      }
-    } finally {
-      setButtonLoading((prev) => ({
-        ...prev,
-        [`${actionType}-${reportId}`]: false,
-      }));
-    }
-  };
-
-
-
   // ============================== Function to Check if User Already Clicked the Buttons ==============================
   const checkUserButtonStatus = async (reportId) => {
     if (!reportId) return
@@ -983,26 +878,13 @@ function Core() {
               <div className='flex gap-3'>
                 {/* Sightings Button */}
                 <button
-                  disabled={userClickedButtons[`${report.id}_sightings`]}
-                  onClick={() => handleVote(report.id, "sighting")}
-                  className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${report.id}_sightings`]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  },
-                  ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
-                    }
-                  `}
-                  /* onClick={() => handleSightingsClick(selectedReport?.id)} */
-                  /* disabled={
+                  onClick={() => handleSightingsClick(selectedReport?.id)}
+                  disabled={
                     !selectedReport ||
                     buttonLoading[`sightings-${selectedReport?.id}`] ||
                     userClickedButtons[`${selectedReport?.id}_sightings`]
-                  } */
-                  /* className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                  }
+                  className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
                     ${
                       userClickedButtons[`${selectedReport?.id}_sightings`]
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
@@ -1013,7 +895,7 @@ function Core() {
                         ? 'bg-[#040507] hover:bg-[#212730]'
                         : 'bg-[#00786d] hover:bg-[#006b61]'
                     }
-                  `} */
+                  `}
                 >
                   <img
                     src='/vision-icon.png'
@@ -1037,20 +919,7 @@ function Core() {
 
                 {/* Resolved Button */}
                 <button
-                  disabled={userClickedButtons[`${report.id}_resolved`]}
-                  onClick={() => handleVote(report.id, "resolved")}
-                  className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${report.id}_resolved`]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  },
-                  ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
-                    }
-                  `}
-                  /* onClick={() => handleResolvedClick(selectedReport?.id)}
+                  onClick={() => handleResolvedClick(selectedReport?.id)}
                   disabled={
                     !selectedReport ||
                     buttonLoading[`resolved-${selectedReport?.id}`] ||
@@ -1067,7 +936,7 @@ function Core() {
                         ? 'bg-[#040507] hover:bg-[#212730]'
                         : 'bg-[#00786d] hover:bg-[#006b61]'
                     }
-                  `} */
+                  `}
                 >
                   <img
                     src='/resolved-icon.png'
