@@ -10,6 +10,7 @@ import { initProfanity, containsProfanity, normalizeText } from '../utils/profan
 function Core() {
   // User Authentication
   const userId = localStorage.getItem('userId')
+  const [user, setUser] = useState(null);
 
   // Supabase
   const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'
@@ -250,6 +251,39 @@ function Core() {
     } catch (error) {
       console.error('Error fetching reports:', error)
     }
+  }
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
+        return;
+      }
+
+      if (data?.user) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+  }, []);
+
+  if (!user) {
+    setButtonStatus({
+      type: "error",
+      message: "Please log in to vote."
+    });
+    return;
   }
 
   useEffect(() => {
