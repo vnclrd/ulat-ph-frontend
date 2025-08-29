@@ -260,6 +260,39 @@ function Core() {
   };
 
   useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error fetching user:', error);
+        setUser(null);
+        return;
+      }
+
+      if (data?.user) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
+  }, []);
+
+  if (!user) {
+    setButtonStatus({
+      type: 'error',
+      message: 'Please log in to vote.',
+    });
+    return;
+  }
+
+  useEffect(() => {
     if (!user?.ui) return;
 
     const fetchUserVotes = async () => {
