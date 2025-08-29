@@ -186,60 +186,38 @@ function Core() {
 
   // ================== Handle Vote (Generic) ==================
   const handleVote = async (reportId, type) => {
-    if (!reportId || buttonLoading[`${type}-${reportId}`]) return;
+    if (!reportId) {
+      console.error("No reportId provided to handleVote");
+      return;
+    }
 
     try {
-      // Start loading state
-      setButtonLoading(prev => ({
+      // Set loading for this specific button
+      setButtonLoading((prev) => ({
         ...prev,
         [`${type}-${reportId}`]: true,
       }));
 
-      // Insert or update in Supabase report_votes table
-      const { error } = await supabase
-        .from("report_votes")
-        .insert({
-          report_id: reportId,
-          user_id: userId,
-          action: type,
-        });
+      // Simulate API call — replace with your backend call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      if (error) {
-        console.error("Vote failed:", error);
-        return;
-      }
-
-      // Update local state → disable button immediately
-      setUserClickedButtons(prev => ({
+      // Mark the button as clicked
+      setUserClickedButtons((prev) => ({
         ...prev,
         [`${reportId}_${type === "sighting" ? "sightings" : "resolved"}`]: true,
       }));
 
-      // Optionally, increment local report counts
-      setReports(prevReports =>
-        prevReports.map(report =>
-          report.id === reportId
-            ? {
-                ...report,
-                [type]: {
-                  ...report[type],
-                  count: (report[type]?.count || 0) + 1,
-                },
-              }
-            : report
-        )
-      );
-    } catch (err) {
-      console.error("Unexpected vote error:", err);
+      console.log(`✅ ${type} vote registered for report: ${reportId}`);
+    } catch (error) {
+      console.error("Error voting:", error);
     } finally {
-      setButtonLoading(prev => ({
+      // Stop loading state for this button
+      setButtonLoading((prev) => ({
         ...prev,
         [`${type}-${reportId}`]: false,
       }));
     }
   };
-
-
 
   // ============================== Function to Check if User Already Clicked the Buttons ==============================
   const checkUserButtonStatus = async (reportId) => {
@@ -968,114 +946,76 @@ function Core() {
               <div className='flex gap-3'>
                 {/* Sightings Button */}
                 <button
+                  onClick={() => handleVote(selectedReport?.id, "sighting")}
                   disabled={
                     buttonLoading[`sightings-${selectedReport?.id}`] ||
                     userClickedButtons[`${selectedReport?.id}_sightings`]
                   }
-                  onClick={() => handleVote(selectedReport?.id, "sighting")}
-                  className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${selectedReport?.id}_sightings`]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-500 hover:bg-blue-600"
-                  }`}
-                  /* onClick={() => handleSightingsClick(selectedReport?.id)} */
-                  /* disabled={
-                    !selectedReport ||
-                    buttonLoading[`sightings-${selectedReport?.id}`] ||
-                    userClickedButtons[`${selectedReport?.id}_sightings`]
-                  } */
-                  /* className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                  className={`flex items-center px-3 py-2 rounded-lg text-white transition-colors
                     ${
                       userClickedButtons[`${selectedReport?.id}_sightings`]
-                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
-                    },
-                    ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
+                        ? "bg-gray-500 cursor-not-allowed opacity-60"
+                        : "bg-blue-500 hover:bg-blue-600"
                     }
-                  `} */
+                    ${isDarkMode ? "bg-[#040507] hover:bg-[#212730]" : "bg-[#00786d] hover:bg-[#006b61]"}
+                  `}
                 >
+                  <img
+                    src="/vision-icon.png"
+                    alt="Vision Icon"
+                    className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2
+                      ${
+                        userClickedButtons[`${selectedReport?.id}_sightings`]
+                          ? "invert opacity-60"
+                          : "invert"
+                      }`}
+                  />
                   {buttonLoading[`sightings-${selectedReport?.id}`]
                     ? "Loading..."
                     : userClickedButtons[`${selectedReport?.id}_sightings`]
-                    ? translations.en.reports_seen
-                    : translations.en.reports_see}
-                  {/* <img
-                    src='/vision-icon.png'
-                    alt='Vision Icon'
-                    className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2 ${
-                      userClickedButtons[`${selectedReport?.id}_sightings`]
-                        ? 'invert opacity-60'
-                        : 'invert'
-                    }`}
-                  />
-                  {userClickedButtons[`${selectedReport?.id}_sightings`]
                     ? isFilipino
                       ? translations.fil.reports_seen
                       : translations.en.reports_seen
-                    : buttonLoading[`sightings-${selectedReport?.id}`]
-                    ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_see
-                    : translations.en.reports_see} */}
+                    : translations.en.reports_see}
                 </button>
 
                 {/* Resolved Button */}
                 <button
-                  disabled={
-                    buttonLoading[`resolved-${selectedReport?.id}`] ||
-                    userClickedButtons[`${selectedReport?.id}_resolved`]
-                  }
                   onClick={() => handleVote(selectedReport?.id, "resolved")}
-                  className={`px-3 py-2 rounded-lg ${
-                    userClickedButtons[`${selectedReport?.id}_resolved`]
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
-                  /* onClick={() => handleResolvedClick(selectedReport?.id)}
                   disabled={
-                    !selectedReport ||
                     buttonLoading[`resolved-${selectedReport?.id}`] ||
                     userClickedButtons[`${selectedReport?.id}_resolved`]
                   }
-                  className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                  className={`flex items-center px-3 py-2 rounded-lg text-white transition-colors
                     ${
                       userClickedButtons[`${selectedReport?.id}_resolved`]
-                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
-                    },
-                    ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
+                        ? "bg-gray-500 cursor-not-allowed opacity-60"
+                        : "bg-blue-500 hover:bg-blue-600"
                     }
-                  `} */
+                    ${isDarkMode ? "bg-[#040507] hover:bg-[#212730]" : "bg-[#00786d] hover:bg-[#006b61]"}
+                  `}
                 >
+                  <img
+                    src="/resolved-icon.png"
+                    alt="Resolved Icon"
+                    className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2
+                      ${
+                        userClickedButtons[`${selectedReport?.id}_resolved`]
+                          ? "opacity-60"
+                          : ""
+                      }`}
+                  />
                   {buttonLoading[`resolved-${selectedReport?.id}`]
                     ? "Loading..."
                     : userClickedButtons[`${selectedReport?.id}_resolved`]
-                    ? translations.en.reports_has_been_resolved
-                    : translations.en.reports_has_been_already_resolved}
-                  {/* <img
-                    src='/resolved-icon.png'
-                    alt='Resolved Icon'
-                    className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2 ${
-                      userClickedButtons[`${selectedReport?.id}_resolved`]
-                        ? 'opacity-60'
-                        : ''
-                    }`}
-                  />
-                  {userClickedButtons[`${selectedReport?.id}_resolved`]
                     ? isFilipino
                       ? translations.fil.reports_has_been_resolved
                       : translations.en.reports_has_been_resolved
-                    : buttonLoading[`resolved-${selectedReport?.id}`]
-                    ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_has_been_already_resolved
-                    : translations.en.reports_has_been_already_resolved} */}
+                    : translations.en.reports_has_been_already_resolved}
                 </button>
               </div>
             </div>
