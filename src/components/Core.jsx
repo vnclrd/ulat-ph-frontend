@@ -274,9 +274,14 @@ function Core() {
   }, []);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(storedUser);
-  }, []);
+    // This effect runs only when the 'user' state changes.
+    if (!user) {
+      setButtonStatus({
+        type: "error",
+        message: "Please log in to vote."
+      });
+    }
+  }, [user]); // Add 'user' to the dependency array
 
   if (!user) {
     setButtonStatus({
