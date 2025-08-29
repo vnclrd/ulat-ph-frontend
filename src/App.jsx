@@ -273,7 +273,14 @@ function App() {
                 : 'bg-[#e0e0e0] hover:bg-gray-200'
             }`}
           >
-            <img src='/navigation-icon.png' alt='Target Icon' className='w-6 h-6' />
+            {/* Conditional Rendering */}
+            {detecting ? (
+              // Loading spinner icon
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+            ) : (
+              // Original navigation icon
+              <img src="/navigation-icon.png" alt="Target Icon" className="w-6 h-6" />
+            )}
           </button>
           {/* Text Area */}
           <input
