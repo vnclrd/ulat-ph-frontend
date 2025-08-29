@@ -1,5 +1,5 @@
 import filter from 'leo-profanity'
-import FILIPINO from '.filipino-badwords.json'
+import FILIPINO from './filipino-badwords.json'
 
 // Basic “leet” and symbol normalization so b1tch/b!tch etc. are caught
 const L33T_MAP = {
