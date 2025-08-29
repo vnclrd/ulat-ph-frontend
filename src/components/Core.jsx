@@ -1331,14 +1331,20 @@ function Core() {
               <div className='flex flex-col leading-tight'>
                 <h1 className='text-base md:text-lg font-bold'>Report Bug</h1>
                 <p className='text-xs md:text-sm'>
-                  Help me improve Ulat PH by reporting issues
+                  Help me improve Ulat PH by reporting issues in the app!
                 </p>
               </div>
             </div>
 
             {/* Right Section: Button */}
-            <button className='flex items-center justify-center w-[100px] md:w-[125px] h-[40px] font-bold bg-[#ff2c2c] rounded-xl text-xs md:text-sm cursor-pointer shadow-[0_2px_2px_rgba(0,0,0,0.5)] gap-1'>
-              Report a Bug
+            <button
+              onClick={() => {
+                const url = "https://noteforms.com/forms/ulat-ph-bugsflagsfeedback-e3ymai";
+                window.open(url, "ReportBugWindow", "width=600,height=700,resizable=yes");
+              }}
+              className='flex items-center justify-center w-[100px] md:w-[125px] h-[40px] font-bold bg-[#ff2c2c] rounded-xl text-xs md:text-sm cursor-pointer shadow-[0_2px_2px_rgba(0,0,0,0.5)] gap-1'
+            >
+              Report/Feedback
             </button>
           </div>
 
