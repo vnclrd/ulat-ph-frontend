@@ -297,6 +297,8 @@ function Core() {
             ...prev,
             [`${reportId}_sightings`]: true, // or resolved
           }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
         })
 
         setButtonStatus({
@@ -378,6 +380,8 @@ function Core() {
             ...prev,
             [`${reportId}_resolved`]: true, // or resolved
           }
+          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+          return updated
         })
 
         setButtonStatus({
@@ -402,6 +406,14 @@ function Core() {
       }))
     }
   }
+
+  // ============================== Load Clicked Buttons ==============================
+  useEffect(() => {
+    const stored = localStorage.getItem("userClickedButtons")
+    if (stored) {
+      setUserClickedButtons(JSON.parse(stored))
+    }
+  }, [])
 
   // Update your selectedReport useEffect or add this
   useEffect(() => {
