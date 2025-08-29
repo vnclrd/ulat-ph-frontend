@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 function App() {
   // User Authentication
-  const [passwordInput, setPasswordInput] = useState('')
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null)
 
   const [location, setLocation] = useState('')
@@ -77,8 +76,8 @@ function App() {
   }
 
   const handleRegister = async () => {
-    if (!nameInput.trim() || !passwordInput.trim()) {
-      showMessage('Please enter both name and password.', 'error')
+    if (!nameInput.trim()) {
+      showMessage('Please enter your name.', 'error')
       return
     }
 
@@ -93,7 +92,6 @@ function App() {
           {
             ui: generatedUserId,
             name: nameInput.trim(),
-            password: passwordInput.trim(),
           },
         ])
         .select()
@@ -294,21 +292,11 @@ function App() {
             className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
             placeholder="Enter your name"
           />
-
-          {/* Password Input */}
-          <input
-            type="password"
-            value={passwordInput}
-            onChange={(e) => setPasswordInput(e.target.value)}
-            className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
-            placeholder="Enter your password"
-          />
-
           <button
             onClick={handleRegister}
             className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
           >
-            Register & Continue
+            Let's Go!
           </button>
         </div>
       </div>
