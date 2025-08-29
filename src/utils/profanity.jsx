@@ -24,7 +24,7 @@ export const initProfanity = () => {
   filter.loadDictionary('en') // built-in English list
   filter.add(FILIPINO) // Filipino bad words
 
-  filter.addWhitelist([
+  filter.addWhitelistWords([
     // English safe words
     'class', 'classic', 'pass', 'assembly', 'bass',
     'Scunthorpe', 'assess', 'passage', 'grass', 'assistant',
