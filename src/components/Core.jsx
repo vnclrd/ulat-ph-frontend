@@ -913,7 +913,7 @@ function Core() {
           </div>
 
           {/* RIGHT PART OF MAIN PANEL */}
-          <div className='flex items-center justify-center w-full md:w-[50%] h-auto md:h-[500px]'>
+          <div className='w-full md:w-[50%] h-auto md:h-[500px] gap-4'>
 
             {/* Container of Success/Error Modal Popup (Take up whole screen) */}
             <div className='flex flex-col w-full h-full rounded-[15px] gap-5'>
@@ -962,165 +962,162 @@ function Core() {
                 </div>
               </div>
 
-              {/* Image of Report Container */}
-              <div
-                className={`
-                  w-full h-[200px] md:h-[50%] rounded-[15px] text-[#e0e0e0] flex items-center justify-center
-                  ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
-                `}
-              >
-                
-                {/* Image of report retrieval */}
-                {selectedReport && selectedReport.image_filename ? (
+              {/* Top Part */}
+              <div className='flex w-full h-[60%] gap-4'>
 
-                  // Retrieve image of report from database (Supbase)
-                  <img 
-                    src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
-                    alt='Photo of report'
-                    className='w-full h-full object-contain rounded-[15px]'
-                  />
+                {/* Image Holder */}
+                <div
+                  className={`
+                    w-[50%] md:w-[50%] md:h-full rounded-[15px] text-[#e0e0e0] flex items-center justify-center
+                    ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
+                  `}
+                >
 
-                ) : (
+                  {/* Image of report retrieval */}
+                  {selectedReport && selectedReport.image_filename ? (
 
-                  // Message if there is no image in the report
-                  <span className='italic'>
-                    {isFilipino ? translations.fil.reports_no_image : translations.en.reports_no_image}
-                  </span>
+                    // Retrieve image of report from database (Supbase)
+                    <img 
+                      src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
+                      alt='Photo of report'
+                      className='w-full h-full object-contain rounded-[15px]'
+                    />
 
-                )}
-              </div>
+                  ) : (
 
-              {/* Number of Sightings and Resolved */}
-              <div className='flex items-center justify-center w-full h-auto gap-2 text-[#e0e0e0] text-sm md:text-[1rem]'>
+                    // Message if there is no image in the report
+                    <span className='italic'>
+                      {isFilipino ? translations.fil.reports_no_image : translations.en.reports_no_image}
+                    </span>
+                  
+                  )}
+                </div>
 
-                {/* Sightings Icon */}
-                <img src='/vision-icon.png' alt='Sightings Icon' className='w-[26px] h-[26px] filter invert' />
+                {/* Description */}
+                <div 
+                  className={`
+                    w-[50%] h-full md:h-full bg-[#00786d] rounded-[15px] text-sm md:text-[1rem] text-[#e0e0e0] overflow-y-scroll p-4
+                    ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
+                  `}
+                >
 
-                {/* Sightings Count */}
-                <p className='mr-2'>
-                  {selectedReport?.sightings?.count || 0}{' '}
-                  {isFilipino ? translations.fil.reports_sightings : translations.en.reports_sightings}
-                </p>
-
-                {/* Resolved Icon */}
-                <img src='/resolved-icon.png' alt='Resolved Icon' className='w-[26px] h-[26px]' />
-
-                {/* Resolved Count */}
-                <p>
-                  {selectedReport?.resolved?.count || 0}{' '}
-                  {isFilipino ? translations.fil.reports_resolved : translations.en.reports_resolved}
-                </p>
-
+                  {/* Description of Image */}
+                  <p>
+                    {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports__details)}
+                  </p>
+                  
+                </div>
               </div>
               
-              {/* Description of Report Container */}
-              <div
-                className={`
-                  w-full md:h-[25%] bg-[#00786d] rounded-[15px] text-[#e0e0e0] overflow-y-scroll p-4
-                  ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
-                `}
-              >
+              {/* Bottom Panel */}
+              <div className='flex flex-col items-center justify-center w-full h-[40%]'>
 
-                {/* "Select a report to view its details/Pumili ng report para tingnan ang mga detalye nito" */}
-                <p>
-                  {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports_details)}
-                </p>
-
-              </div>
-
-              {/* Buttons */}
-              <div className='flex gap-3'>
-
-                {/* Sightings Button */}
-                <button
-                  onClick={() => handleSightingsClick(selectedReport?.id)}
-                  disabled={
-                    !selectedReport || 
-                    buttonLoading[`sightings-${selectedReport?.id}`] || 
-                    !canUserInteract(selectedReport?.id, 'sightings') ||
-                    loadingInteractions
-                  }
-                  className={`
-                    flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${!canUserInteract(selectedReport?.id, 'sightings')
-                      ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                      : isDarkMode 
-                      ? 'bg-[#040507] hover:bg-[#212730] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-                      : 'bg-[#00786d] hover:bg-[#006b61] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-                    }
-                  `}
-                >
-
-                  {/* Sightings Icon */}
-                  <img
-                    src='/vision-icon.png'
-                    alt='Vision Icon'
-                    className={`
-                      w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter invert mr-2
-                      ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
-                    `}
-                  />
-
-                  {!canUserInteract(selectedReport?.id, 'sightings')
-                    ? isFilipino
-                      ? translations.fil.reports_seen
-                      : translations.en.reports_seen
-                    : buttonLoading[`sightings-${selectedReport?.id}`]
-                    ? 'Loading...'
-                    : loadingInteractions
-                    ? 'Loading...'
-                    : isFilipino
-                    ? translations.fil.reports_see
-                    : translations.en.reports_see
-                  }
+                {/* Sightings and Resolved Container */}
+                <div className='flex flex-col items-center justify-center w-full h-auto text-[#e0e0e0] text-sm md:text-lg mt-3 mb-4'>
                   
-                </button>
+                  {/* Sightings Container */}
+                  <div className='flex gap-2 mb-2 items-center'>
 
-                {/* Resolved Button */}
-                <button
-                  onClick={() => handleResolvedClick(selectedReport?.id)}
-                  disabled={
-                    !selectedReport || 
-                    buttonLoading[`resolved-${selectedReport?.id}`] || 
-                    !canUserInteract(selectedReport?.id, 'resolved') ||
-                    loadingInteractions
-                  }
-                  className={`
-                    flex items-center justify-center w-[50%] h-[50px]
-                    text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${!canUserInteract(selectedReport?.id, 'resolved')
-                      ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                      : isDarkMode 
-                      ? 'bg-[#040507] hover:bg-[#212730] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
-                      : 'bg-[#00786d] hover:bg-[#006b61] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                    {/* Sightings Icon */}
+                    <img src='/vision-icon.png' alt='Sightings Icon' className='w-[26px] h-[26px] filter invert' />
+
+                    {/* Sightings Count */}
+                    <p className='mr-2'>
+                      {selectedReport?.sightings?.count || 0} {isFilipino ? translations.fil.reports_sightings : translations.en.reports_sightings}
+                    </p>
+
+                  </div>
+                  
+                  {/* Resolved Container */}
+                  <div className='flex gap-2 items-center'>
+
+                    {/* Resolved Icon */}
+                    <img src='/resolved-icon.png' alt='Resolved Icon' className='w-[26px] h-[26px]' />
+
+                    {/* Resolved Count */}
+                    <p>
+                      {selectedReport?.resolved?.count || 0} {isFilipino ? translations.fil.reports_resolved : translations.en.reports_resolved}
+                    </p>
+
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className='flex flex-col w-full gap-2'>
+
+                  {/* Sightings Button */}
+                  <button 
+                    onClick={() => handleSightingsClick(selectedReport?.id)}
+                    disabled={
+                      !selectedReport || 
+                      buttonLoading[`sightings-${selectedReport?.id}`] || 
+                      !canUserInteract(selectedReport?.id, 'sightings') ||
+                      loadingInteractions
                     }
-                  `}
-                >
-
-                  {/* Resolved Icon */}
-                  <img
-                    src='/resolved-icon.png'
-                    alt='Resolved Icon'
-                    className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2
-                      ${!canUserInteract(selectedReport?.id, 'resolved') ? 'opacity-60' : ''}
+                    className={`flex items-center justify-center w-full h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                      ${
+                        userClickedButtons[`${selectedReport?.id}_sightings`]
+                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
+                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
+                      },
+                      ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                     `}
-                  />
+                  >
 
-                  {!canUserInteract(selectedReport?.id, 'resolved')
-                    ? isFilipino
-                      ? translations.fil.reports_has_been_resolved
-                      : translations.en.reports_has_been_resolved
-                    : buttonLoading[`resolved-${selectedReport?.id}`]
-                    ? 'Loading...'
-                    : loadingInteractions
-                    ? 'Loading...'
-                    : isFilipino
-                    ? translations.fil.reports_has_been_already_resolved
-                    : translations.en.reports_has_been_already_resolved
-                  }
+                    {/* Sightings Icon */}
+                    <img
+                      src='/vision-icon.png'
+                      alt='Vision Icon'
+                      className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] filter mr-2
+                        ${userClickedButtons[`${selectedReport?.id}_sightings`] ? 'invert opacity-60' : 'invert'}
+                      `}
+                    />
 
-                </button>
+                    {userClickedButtons[`${selectedReport?.id}_sightings`] 
+                      ? (isFilipino ? translations.fil.reports_seen : translations.en.reports_seen)
+                      : buttonLoading[`sightings-${selectedReport?.id}`] 
+                        ? 'Loading...' 
+                        : (isFilipino ? translations.fil.reports_see : translations.en.reports_see)
+                    }
+                  </button>
 
+                  {/* Resolved Button */}
+                  <button 
+                    onClick={() => handleResolvedClick(selectedReport?.id)}
+                    disabled={
+                      !selectedReport || 
+                      buttonLoading[`resolved-${selectedReport?.id}`] || 
+                      !canUserInteract(selectedReport?.id, 'resolved') ||
+                      loadingInteractions
+                    }
+                    className={`flex items-center justify-center w-full h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                      ${
+                        userClickedButtons[`${selectedReport?.id}_resolved`]
+                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
+                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
+                      },
+                      ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                    `}
+                  >
+                    {/* Resolved Icon */}
+                    <img
+                      src='/resolved-icon.png'
+                      alt='Vision Icon'
+                      className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2
+                        ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
+                      `}
+                    />
+
+                    {userClickedButtons[`${selectedReport?.id}_resolved`] 
+                      ? (isFilipino ? translations.fil.reports_has_been_resolved : translations.en.reports_has_been_resolved)
+                      : buttonLoading[`resolved-${selectedReport?.id}`] 
+                        ? 'Loading...' 
+                        : (isFilipino ? translations.fil.reports_has_been_already_resolved : translations.en.reports_has_been_already_resolved)
+                    }
+
+                  </button>
+
+                </div>
               </div>
             </div>
           </div>
