@@ -397,7 +397,7 @@ function Core() {
       make_report_desc: 'malapit sa iyong lokasyon:',
       make_report_upload_preview: 'Imahe na pinili mo',
       make_report_upload: 'Imahe na pinili mo:',
-      make_report_selected_image: 'Wala napiling imahe',
+      make_report_selected_image: 'Walamg napiling imahe',
       make_report_choose_image: 'Pumili ng imahe',
       make_report_discard_image: 'Alisin ang imahe',
       make_report_choose_issue: 'Pumili ng isyu',
@@ -1056,7 +1056,7 @@ function Core() {
                     src='/vision-icon.png'
                     alt='Vision Icon'
                     className={`
-                      w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2
+                      w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter invert mr-2
                       ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
                     `}
                   />
@@ -1086,7 +1086,8 @@ function Core() {
                     loadingInteractions
                   }
                   className={`
-                    flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
+                    flex items-center justify-center w-[50%] h-[50px]
+                    text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
                     ${!canUserInteract(selectedReport?.id, 'resolved')
                       ? 'bg-gray-500 cursor-not-allowed opacity-60'
                       : isDarkMode 
@@ -1271,7 +1272,7 @@ function Core() {
                 translations.fil.make_report_selected_image
               ) : (
                 translations.en.make_report_selected_image
-              )}'
+              )}
             
             </p>
 
@@ -1636,7 +1637,7 @@ function Core() {
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%]
               h-auto min-h-[75px] flex-col sm:flex-row lg:items-center
               justify-between rounded-2xl text-base md:text-lg p-5
-              gap-3 shadow-lg transition-colors duration-500 ease-in-outtext-[#e0e0e0]
+              gap-3 shadow-lg transition-colors duration-500 ease-in-out text-[#e0e0e0]
               ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
             `}
           >
