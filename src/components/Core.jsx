@@ -996,7 +996,9 @@ function Core() {
                 {/* Description */}
                 <div 
                   className={`
-                    w-[50%] h-full md:h-full bg-[#00786d] rounded-[15px] text-sm md:text-[1rem] text-[#e0e0e0] overflow-y-scroll p-4
+                    flex items-center justify-center w-[50%] md:h-full
+                    bg-[#00786d] rounded-[15px] text-sm md:text-[1rem] 
+                    text-[#e0e0e0] overflow-y-scroll p-4
                     ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
                   `}
                 >
@@ -1013,7 +1015,13 @@ function Core() {
               <div className='flex flex-col items-center justify-center w-full h-[40%]'>
 
                 {/* Sightings and Resolved Container */}
-                <div className='flex flex-col items-center justify-center w-full h-full text-[#e0e0e0] text-sm md:text-lg'>
+                <div
+                  className='
+                    flex flex-col items-center justify-center w-full
+                    h-full text-[#e0e0e0] text-sm md:text-lg mt-2
+                    mb-2 md:mt-0 md:mb-0
+                  '
+                >
                   
                   {/* Sightings Container */}
                   <div className='flex gap-2 mb-2 items-center'>
