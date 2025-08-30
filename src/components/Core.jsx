@@ -8,31 +8,391 @@ import { useLocation } from 'react-router-dom'
 import { initProfanity, containsProfanity, normalizeText, } from '../utils/profanity'
 
 function Core() {
-  // User Authentication
-  const userId = localStorage.getItem('userId')
+
+  // ============================== Enhanced Button Validation Functions ==============================
+
+  // Add these state variables to your existing state declarations:
+  const [userInteractions, setUserInteractions] = useState({}) // Format: { reportId_buttonType: true }
+  const [loadingInteractions, setLoadingInteractions] = useState(true)
+  
+  // ============================== Load User Interactions from Supabase ==============================
+  const loadUserInteractions = async () => {
+    if (!userId) {
+      setLoadingInteractions(false)
+      return
+    }
+
+    try {
+      setLoadingInteractions(true)
+      
+      const { data, error } = await supabase
+        .from('user_interactions')
+        .select('report_id, interaction_type')
+        .eq('user_id', userId)
+
+      if (error) {
+        console.error('Error loading user interactions:', error)
+        return
+      }
+
+      // Convert to object format for quick lookup
+      const interactions = {}
+      data?.forEach(interaction => {
+        const key = `${interaction.report_id}_${interaction.interaction_type}`
+        interactions[key] = true
+      })
+
+      setUserInteractions(interactions)
+      
+      // Also update the legacy userClickedButtons state for backward compatibility
+      const legacyFormat = {}
+      data?.forEach(interaction => {
+        legacyFormat[`${interaction.report_id}_${interaction.interaction_type}`] = true
+      })
+      setUserClickedButtons(legacyFormat)
+      
+    } catch (err) {
+      console.error('Error in loadUserInteractions:', err)
+    } finally {
+      setLoadingInteractions(false)
+    }
+  }
+
+  // ============================== Record User Interaction in Supabase ==============================
+  const recordUserInteraction = async (reportId, interactionType) => {
+    try {
+      const { error } = await supabase
+        .from('user_interactions')
+        .insert([
+          {
+            user_id: userId,
+            report_id: reportId,
+            interaction_type: interactionType,
+            created_at: new Date().toISOString()
+          }
+        ])
+
+      if (error) {
+        console.error('Error recording user interaction:', error)
+        return false
+      }
+
+      // Update local state
+      const interactionKey = `${reportId}_${interactionType}`
+      setUserInteractions(prev => ({
+        ...prev,
+        [interactionKey]: true
+      }))
+
+      // Update legacy state for backward compatibility
+      setUserClickedButtons(prev => {
+        const updated = {
+          ...prev,
+          [interactionKey]: true
+        }
+        localStorage.setItem("userClickedButtons", JSON.stringify(updated))
+        return updated
+      })
+
+      return true
+    } catch (err) {
+      console.error('Error in recordUserInteraction:', err)
+      return false
+    }
+  }
+
+  // ============================== Check if User Can Interact with Button ==============================
+  const canUserInteract = (reportId, interactionType) => {
+    if (!userId || !reportId) return false
+    
+    const interactionKey = `${reportId}_${interactionType}`
+    return !userInteractions[interactionKey] && !userClickedButtons[interactionKey]
+  }
+
+  // ============================== Enhanced Sightings Click Handler ==============================
+  const handleSightingsClick = async (reportId) => {
+    if (!reportId || !userId) return
+
+    // Check if user has already clicked this button
+    if (!canUserInteract(reportId, 'sightings')) {
+      setButtonStatus({
+        type: 'error',
+        message: 'You have already marked this report as seen.'
+      })
+      return
+    }
+
+    if (buttonLoading[`sightings-${reportId}`]) return
+
+    setButtonLoading(prev => ({ ...prev, [`sightings-${reportId}`]: true }))
+    setButtonStatus(null)
+
+    try {
+      // Record the interaction in Supabase first
+      const interactionRecorded = await recordUserInteraction(reportId, 'sightings')
+      
+      if (!interactionRecorded) {
+        setButtonStatus({
+          type: 'error',
+          message: 'Failed to record your interaction. Please try again.'
+        })
+        return
+      }
+
+      // Then call your existing backend API to update the count
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/sightings`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId }) // Include user_id in request
+        }
+      )
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update counts locally
+        setReports(prevReports =>
+          prevReports.map(report =>
+            report.id === reportId
+              ? {
+                  ...report,
+                  sightings: {
+                    ...report.sightings,
+                    count: (report.sightings?.count || 0) + 1,
+                  },
+                }
+              : report
+          )
+        )
+
+        // Update selected report if it's currently displayed
+        if (selectedReport?.id === reportId) {
+          setSelectedReport(prev => ({
+            ...prev,
+            sightings: {
+              ...prev.sightings,
+              count: (prev.sightings?.count || 0) + 1,
+            },
+          }))
+        }
+
+        setButtonStatus({
+          type: 'success',
+          message: 'Thank you for confirming this sighting! Your input helps keep our community informed.'
+        })
+      } else {
+        setButtonStatus({
+          type: 'error',
+          message: result.message || 'Failed to record sighting'
+        })
+      }
+    } catch (error) {
+      console.error('Error in handleSightingsClick:', error)
+      setButtonStatus({
+        type: 'error',
+        message: 'Failed to record sighting. Please try again.'
+      })
+    } finally {
+      setButtonLoading(prev => ({
+        ...prev,
+        [`sightings-${reportId}`]: false,
+      }))
+    }
+  }
+
+  // ============================== Enhanced Resolved Click Handler ==============================
+  const handleResolvedClick = async (reportId) => {
+    if (!reportId || !userId) return
+
+    // Check if user has already clicked this button
+    if (!canUserInteract(reportId, 'resolved')) {
+      setButtonStatus({
+        type: 'error',
+        message: 'You have already marked this report as resolved.'
+      })
+      return
+    }
+
+    if (buttonLoading[`resolved-${reportId}`]) return
+
+    setButtonLoading(prev => ({ ...prev, [`resolved-${reportId}`]: true }))
+    setButtonStatus(null)
+
+    try {
+      // Record the interaction in Supabase first
+      const interactionRecorded = await recordUserInteraction(reportId, 'resolved')
+      
+      if (!interactionRecorded) {
+        setButtonStatus({
+          type: 'error',
+          message: 'Failed to record your interaction. Please try again.'
+        })
+        return
+      }
+
+      // Then call your existing backend API to update the count
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId }) // Include user_id in request
+        }
+      )
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Update counts locally
+        setReports(prevReports =>
+          prevReports.map(report =>
+            report.id === reportId
+              ? {
+                  ...report,
+                  resolved: {
+                    ...report.resolved,
+                    count: (report.resolved?.count || 0) + 1,
+                  },
+                }
+              : report
+          )
+        )
+
+        // Update selected report if it's currently displayed
+        if (selectedReport?.id === reportId) {
+          setSelectedReport(prev => ({
+            ...prev,
+            resolved: {
+              ...prev.resolved,
+              count: (prev.resolved?.count || 0) + 1,
+            },
+          }))
+        }
+
+        setButtonStatus({
+          type: 'success',
+          message: 'Thank you for marking this issue as resolved! This helps our community stay updated.'
+        })
+      } else {
+        setButtonStatus({
+          type: 'error',
+          message: result.message || 'Failed to record resolution'
+        })
+      }
+    } catch (error) {
+      console.error('Error in handleResolvedClick:', error)
+      setButtonStatus({
+        type: 'error',
+        message: 'Failed to record resolution. Please try again.'
+      })
+    } finally {
+      setButtonLoading(prev => ({
+        ...prev,
+        [`resolved-${reportId}`]: false,
+      }))
+    }
+  }
+
+  // ============================== useEffect to Load User Interactions ==============================
+  // Replace your existing "Load Clicked Buttons" useEffect with this:
+  useEffect(() => {
+    if (userId) {
+      loadUserInteractions()
+    } else {
+      // Fallback to localStorage if no userId yet
+      const stored = localStorage.getItem('userClickedButtons')
+      if (stored) {
+        setUserClickedButtons(JSON.parse(stored))
+      }
+      setLoadingInteractions(false)
+    }
+  }, [userId])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const userId = localStorage.getItem('userId')             // User Authentication
   const [user, setUser] = useState(null)
-
-  // Supabase
-  const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'
-
-  // Get custom location from App.jsx
-  const location = useLocation()
-
-  // Toggle Dark Mode
-  const { isDarkMode, toggleDarkMode } = useDarkMode()
+  const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'        // Supabase Backend Connection
+  const location = useLocation()                            // Get location from App.jsx
+  const { isDarkMode, toggleDarkMode } = useDarkMode()      // Toggle Dark Mode
 
   // Profanity Tracking
-  const [profanityError, setProfanityError] = useState('')
+  const [profanityError, setProfanityError] = useState('')  // Detect Profanity in Make Report
 
+  // ============================== Initialize profanity check ==============================
   useEffect(() => {
     initProfanity()
   }, [])
 
+  // ============================== Toggle Dark Mode ==============================
   const handleToggle = () => {
     toggleDarkMode()
   }
 
-  // Change Language
+  // ============================== Change language to Filipino ==============================
   const [isFilipino, setIsFilipino] = useState(() => {
     const savedLang = localStorage.getItem('isFilipino')
     return savedLang === 'true' ? true : false
@@ -46,6 +406,7 @@ function Core() {
     setIsFilipino(!isFilipino)
   }
 
+  // ============================== Set English/Filipino languages ==============================
   const translations = {
     en: {
       reports: 'Reports',
@@ -133,8 +494,7 @@ function Core() {
   const [buttonStatus, setButtonStatus] = useState(null)
 
   const [activeDiv, setActiveDiv] = useState('div1')
-  const baseButtonClassesFooter =
-    'flex flex-col items-center justify-center w-[25%] h-[60px] cursor-pointer'
+  const baseButtonClassesFooter = 'flex flex-col items-center justify-center w-[25%] h-[60px] cursor-pointer'
 
   const [selectedIssue, setSelectedIssue] = useState('')
   const [locationName, setLocationName] = useState('Fetching location...')
@@ -251,7 +611,7 @@ function Core() {
   }
 
   // ============================== Function to Handle Sightings Button Click ==============================
-  const handleSightingsClick = async (reportId) => {
+  /* const handleSightingsClick = async (reportId) => {
     if (
       !reportId ||
       buttonLoading[`sightings-${reportId}`] ||
@@ -331,10 +691,10 @@ function Core() {
         [`sightings-${reportId}`]: false,
       }))
     }
-  }
+  } */
 
   // ============================== Function to Handle Resolved Button Click ==============================
-  const handleResolvedClick = async (reportId) => {
+  /* const handleResolvedClick = async (reportId) => {
     if (
       !reportId ||
       buttonLoading[`resolved-${reportId}`] ||
@@ -414,10 +774,10 @@ function Core() {
         [`resolved-${reportId}`]: false,
       }))
     }
-  }
+  } */
 
   // ============================== Load Clicked Buttons ==============================
-  useEffect(() => {
+  /* useEffect(() => {
     const stored = localStorage.getItem('userClickedButtons')
     if (stored) {
       setUserClickedButtons(JSON.parse(stored))
@@ -429,7 +789,7 @@ function Core() {
     if (selectedReport?.id) {
       checkUserButtonStatus(selectedReport.id)
     }
-  }, [selectedReport?.id])
+  }, [selectedReport?.id]) */
 
   // Fetch reports from backend (reports.json) and filter them based on location
   useEffect(() => {
@@ -498,14 +858,14 @@ function Core() {
     }
   }, [location.state]) // Add location.state as dependency
 
-  // Update locationName when savedLocationData changes
+  // ============================== Update locationName when savedLocationData changes ==============================
   useEffect(() => {
     if (savedLocationData.name) {
       setLocationName(savedLocationData.name)
     }
   }, [savedLocationData])
 
-  // Handler functions for image saving
+  // ============================== Preview uploaded image ==============================
   const handleImageUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -520,7 +880,7 @@ function Core() {
     }
   }
 
-  // Handler function for uploaded image discarding
+  // ============================== Discard uploaded image ==============================
   const handleDiscardImage = () => {
     setUploadedImage(null)
     setImagePreview('')
@@ -528,6 +888,8 @@ function Core() {
     const fileInput = document.querySelector("input[type='file']")
     if (fileInput) fileInput.value = ''
   }
+
+  // ============================== Submission handler for making a report ==============================
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -625,13 +987,14 @@ function Core() {
     setSelectedIssue(e.target.value)
   }
 
-  // Handle location updates from LocationContent
+  // ============================== Handle location updates from LocationContent.jsx ==============================
   const handleLocationUpdate = (newLocationData) => {
     setSavedLocationData(newLocationData)
     setLocationName(newLocationData.name)
-    // Save to localStorage
-    localStorage.setItem('savedLocation', JSON.stringify(newLocationData))
+    localStorage.setItem('savedLocation', JSON.stringify(newLocationData)) // Save location to localStorage
   }
+
+  // ============================== Default Icon Marker for Map ==============================
 
   const DefaultIcon = L.icon({
     iconUrl:
@@ -896,43 +1259,62 @@ function Core() {
                 {/* Sightings Button */}
                 <button
                   onClick={() => handleSightingsClick(selectedReport?.id)}
-                  disabled={!selectedReport || buttonLoading[`sightings-${selectedReport?.id}`] || userClickedButtons[`${selectedReport?.id}_sightings`]}
+                  disabled={
+                    !selectedReport || 
+                    buttonLoading[`sightings-${selectedReport?.id}`] || 
+                    !canUserInteract(selectedReport?.id, 'sightings') ||
+                    loadingInteractions
+                  }
                   className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${userClickedButtons[`${selectedReport?.id}_sightings`]
-                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
-                    },
-                    ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                    ${!canUserInteract(selectedReport?.id, 'sightings')
+                      ? 'bg-gray-500 cursor-not-allowed opacity-60'
+                      : isDarkMode 
+                      ? 'bg-[#040507] hover:bg-[#212730] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                      : 'bg-[#00786d] hover:bg-[#006b61] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                    }
                   `}
                 >
 
                   {/* Sightings Icon */}
-                  <img src='/vision-icon.png' alt='Vision Icon' className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2
-                    ${userClickedButtons[`${selectedReport?.id}_sightings`] ? 'invert opacity-60' : 'invert'}`}
+                  <img
+                    src='/vision-icon.png'
+                    alt='Vision Icon'
+                    className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2
+                      ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
+                    `}
                   />
-                  
-                  {userClickedButtons[`${selectedReport?.id}_sightings`]
+
+                  {!canUserInteract(selectedReport?.id, 'sightings')
                     ? isFilipino
                       ? translations.fil.reports_seen
                       : translations.en.reports_seen
                     : buttonLoading[`sightings-${selectedReport?.id}`]
                     ? 'Loading...'
+                    : loadingInteractions
+                    ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_see
                     : translations.en.reports_see
                   }
+                  
                 </button>
 
                 {/* Resolved Button */}
                 <button
                   onClick={() => handleResolvedClick(selectedReport?.id)}
-                  disabled={!selectedReport || buttonLoading[`resolved-${selectedReport?.id}`] || userClickedButtons[`${selectedReport?.id}_resolved`]}
+                  disabled={
+                    !selectedReport || 
+                    buttonLoading[`resolved-${selectedReport?.id}`] || 
+                    !canUserInteract(selectedReport?.id, 'resolved') ||
+                    loadingInteractions
+                  }
                   className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${userClickedButtons[`${selectedReport?.id}_resolved`]
-                        ? 'bg-gray-500 cursor-not-allowed opacity-60'
-                        : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
-                    },
-                    ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                    ${!canUserInteract(selectedReport?.id, 'resolved')
+                      ? 'bg-gray-500 cursor-not-allowed opacity-60'
+                      : isDarkMode 
+                      ? 'bg-[#040507] hover:bg-[#212730] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                      : 'bg-[#00786d] hover:bg-[#006b61] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+                    }
                   `}
                 >
 
@@ -941,20 +1323,23 @@ function Core() {
                     src='/resolved-icon.png'
                     alt='Resolved Icon'
                     className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2
-                      ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
+                      ${!canUserInteract(selectedReport?.id, 'resolved') ? 'opacity-60' : ''}
                     `}
                   />
 
-                  {userClickedButtons[`${selectedReport?.id}_resolved`]
+                  {!canUserInteract(selectedReport?.id, 'resolved')
                     ? isFilipino
                       ? translations.fil.reports_has_been_resolved
                       : translations.en.reports_has_been_resolved
                     : buttonLoading[`resolved-${selectedReport?.id}`]
                     ? 'Loading...'
+                    : loadingInteractions
+                    ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_has_been_already_resolved
                     : translations.en.reports_has_been_already_resolved
                   }
+
                 </button>
               </div>
             </div>
