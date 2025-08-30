@@ -1013,7 +1013,7 @@ function Core() {
               <div className='flex flex-col items-center justify-center w-full h-[40%]'>
 
                 {/* Sightings and Resolved Container */}
-                <div className='flex flex-col items-center justify-center w-full h-auto text-[#e0e0e0] text-sm md:text-lg mt-3 mb-4'>
+                <div className='flex flex-col items-center justify-center w-full h-full text-[#e0e0e0] text-sm md:text-lg'>
                   
                   {/* Sightings Container */}
                   <div className='flex gap-2 mb-2 items-center'>
