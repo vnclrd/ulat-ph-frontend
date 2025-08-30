@@ -5,20 +5,30 @@ import { supabase } from './utils/supabaseClient'
 import { v4 as uuidv4 } from 'uuid'
 
 function App() {
-  const [userId, setUserId] = useState(localStorage.getItem('userId') || null)            // #1 - Generate and set user ID after entering name
-  const [showFirstPrompt, setshowFirstPrompt] = useState(false)                           // #2 - ("Join your neighbors in building...")
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null)            // #1 - Generate and set user ID
+  const [showFirstPrompt, setshowFirstPrompt] = useState(false)                           // #2 - First Prompt
   const [nameInput, setNameInput] = useState('')                                          // #3 - Input user name
-  const [greeting, setGreeting] = useState('')                                            // #4 - Greeting ("Good morning", "Good afternoon", "Good evening")
-  const [userName, setUserName] = useState('')                                            // #5 - ("Good Morning, Miguel")
-  const [detecting, setDetecting] = useState(false)                                       // #6 - Detect user location after navigation button click
-  const [location, setLocation] = useState('')                                            // #7 - Put exact location on textbox after navigation button click
-  const [loading, setLoading] = useState(false)                                           // #8 - Initiate spinner icon after clicking Navigate and Submit buttons
-  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false) // #9 - ("Sorry, Ulat PH is currently only available within Metro Manila..."")
-  const [message, setMessage] = useState({ text: '', type: '' })                          // #10 - ("Failed to find location. Please try again.")
-  const navigate = useNavigate()                                                          // #11 - Redirect to another page (Core.jsx)
+  const [greeting, setGreeting] = useState('')                                            // #4 - Greetings
+  const [userName, setUserName] = useState('')                                            // #5 - Add user name to greeting  
+  const [detecting, setDetecting] = useState(false)                                       // #6 - Detect user location
+  const [location, setLocation] = useState('')                                            // #7 - Put exact location on textbox
+  const [loading, setLoading] = useState(false)                                           // #8 - Initiate spinner icon
+  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false) // #9 - Location restriction
+  const [message, setMessage] = useState({ text: '', type: '' })                          // #10 - Detect location failed
+  const navigate = useNavigate()                                                          // #11 - Redirect to Core.jsx
   const { isDarkMode } = useDarkMode()                                                    // #12 - Dark mode
 
-  // ============================== A. Register name to database (Supabase) - Contains #1, #3, #5 ==============================
+  // ============================== First Prompt ("Join your neighbors in building...") ==============================
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName')
+    if (storedName) {
+      setUserName(storedName)
+    } else {
+      setshowFirstPrompt(true)
+    }
+  }, [])
+
+  // ============================== Register name to database (Supabase) ==============================
   const handleRegister = async () => {
     if (!nameInput.trim()) {
       showMessage('Please enter your name.', 'error')
@@ -56,17 +66,7 @@ function App() {
     }
   }
 
-  // ============================== B. ("Join your neighbors in building...") - Contains #5 ==============================
-  useEffect(() => {
-    const storedName = localStorage.getItem('userName')
-    if (storedName) {
-      setUserName(storedName)
-    } else {
-      setshowFirstPrompt(true)
-    }
-  }, [])
-
-  // ============================== C. Greetings - Contains #4 ==============================
+  // ============================== Greetings ==============================
   const getGreeting = () => {
     const hour = new Date().getHours()
     
@@ -96,35 +96,20 @@ function App() {
     setTimeout(() => setMessage({ text: '', type: '' }), 5000)
   }
   
-  // ============================== D. Set cities within Metro Manila ==============================
+  // ============================== Set cities within Metro Manila ==============================
   const isWithinMetroManila = (locationName) => {
     const metroManilaKeywords = [
-      'metro manila',
-      'manila',
-      'quezon city',
-      'makati',
-      'taguig',
-      'pasig',
-      'mandaluyong',
-      'san juan',
-      'marikina',
-      'pasay',
-      'paranaque',
-      'parañaque',
-      'las pinas',
-      'las piñas',
-      'muntinlupa',
-      'caloocan',
-      'malabon',
-      'navotas',
-      'valenzuela'
+      'metro manila', 'manila', 'quezon city', 'makati', 'taguig',
+      'pasig', 'mandaluyong', 'san juan', 'marikina', 'pasay',
+      'paranaque', 'parañaque', 'las pinas', 'las piñas', 'muntinlupa',
+      'caloocan', 'malabon', 'navotas', 'valenzuela'
     ]
 
     const locationLower = locationName.toLowerCase()
     return metroManilaKeywords.some(keyword => locationLower.includes(keyword))
   }
 
-  // ============================== E. Detect user location - Contains #6 ==============================
+  // ============================== Detect user's current location ==============================
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
       showMessage('Geolocation is not supported by your browser.', 'error')
@@ -166,7 +151,7 @@ function App() {
     )
   }
 
-  // ============================== F. Redirect to Core.jsx if location if valid (within Metro Manila) - Contains #6, #8 ==============================
+  // ============================== Redirect to Core.jsx if location if valid (within Metro Manila) ==============================
   const handleRedirect = async () => {
     if (!location.trim()) {
         setMessage({ text: 'Please enter a location.', type: 'error' })
@@ -221,6 +206,7 @@ function App() {
     <div className={`flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out ${
       isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]'
     }`}>
+
       {/* Message Box */}
       {message.text && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${message.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
@@ -234,17 +220,23 @@ function App() {
           showLocationRestrictionModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
         } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
       >
+
         <div
           className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
             isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'
           }`}
         >
+
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
+
           <h2 className="text-xl font-bold mb-4 text-center">Service Area Restriction</h2>
+
           <p className="text-md text-center mb-6 leading-6">
             Sorry, Ulat PH is currently only available within Metro Manila. Please enter a location within Metro Manila to continue.
           </p>
+          
           <div className="flex gap-3">
+
             <button
               onClick={() => setShowLocationRestrictionModal(false)}
               className={`
@@ -254,6 +246,7 @@ function App() {
             >
               Try Again
             </button>
+
           </div>
         </div>
       </div>
@@ -262,7 +255,10 @@ function App() {
       {showFirstPrompt && (
       <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
         <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+
+
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
+
           <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
             Join your neighbors in building a better community! Register your account to start reporting and tracking local issues.
           </p>
@@ -275,18 +271,22 @@ function App() {
             className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
             placeholder="Enter your name"
           />
+
             <button
               onClick={handleRegister}
               className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
             >
               Let's Go!
             </button>
+
           </div>
         </div>
       )}
 
       {/* Hero Container */}
       <div className='flex flex-col items-center justify-center w-full lg:w-[1000px]'>
+
+        {/* Greeting (Good morning, Good afternoon, Good evening) */}
         <h1 className='text-[2rem] sm:text-3xl lg:text-4xl mb-4 lg:mb-8 text-[#e0e0e0] text-center'>
           {greeting}, {userName || 'friend'}
         </h1>
@@ -305,7 +305,7 @@ function App() {
             }`}
           >
 
-            {/* Conditional Rendering */}
+            {/* Spinner icon when loading */}
             {detecting ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div> // Loading spinner icon
             ) : (
@@ -314,7 +314,7 @@ function App() {
 
           </button>
 
-          {/* Text Area */}
+          {/* Input Text Area */}
           <input
             type='text'
             placeholder='Enter your location'
@@ -334,7 +334,7 @@ function App() {
             }`}
           >
             
-            {/* Conditional Rendering */}
+            {/* Spinner icon when loading */}
             {loading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div> // Loading spinner icon
             ) : (
@@ -348,7 +348,6 @@ function App() {
         <p className='text-[#e0e0e0] text-xs mt-4 lg:mt-6 italic'>Tip: You can pin your exact location later.</p>
 
       </div>
-
     </div>
   )
 }
