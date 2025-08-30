@@ -6,6 +6,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useDarkMode } from './DarkModeContext.jsx'
 import { useLocation } from 'react-router-dom'
 import { initProfanity, containsProfanity, normalizeText, } from '../utils/profanity'
+import { supabase } from './utils/supabaseClient'
 
 function Core() {
   const userId = localStorage.getItem('userId')             // User Authentication
