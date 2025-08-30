@@ -980,7 +980,7 @@ function Core() {
                     <img 
                       src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
                       alt='Photo of report'
-                      className='w-full h-full object-contain rounded-[15px]'
+                      className='w-full h-full object-cover rounded-[15px]'
                     />
 
                   ) : (
@@ -1009,7 +1009,7 @@ function Core() {
                 </div>
               </div>
               
-              {/* Bottom Panel */}
+              {/* Bottom Part */}
               <div className='flex flex-col items-center justify-center w-full h-[40%]'>
 
                 {/* Sightings and Resolved Container */}
