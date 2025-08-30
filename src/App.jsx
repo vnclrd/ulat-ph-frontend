@@ -8,21 +8,27 @@ function App() {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null)            // #1 - Generate and set user ID
   const [showFirstPrompt, setshowFirstPrompt] = useState(false)                           // #2 - First Prompt
   const [nameInput, setNameInput] = useState('')                                          // #3 - Input user name
-  const [greeting, setGreeting] = useState('')                                            // #4 - Greetings
-  const [userName, setUserName] = useState('')                                            // #5 - Add user name to greeting  
-  const [detecting, setDetecting] = useState(false)                                       // #6 - Detect user location
-  const [location, setLocation] = useState('')                                            // #7 - Put exact location on textbox
-  const [loading, setLoading] = useState(false)                                           // #8 - Initiate spinner icon
-  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false) // #9 - Location restriction
-  const [message, setMessage] = useState({ text: '', type: '' })                          // #10 - Detect location failed
-  const navigate = useNavigate()                                                          // #11 - Redirect to Core.jsx
-  const { isDarkMode } = useDarkMode()                                                    // #12 - Dark mode
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)                         // #4 - 
+  const [greeting, setGreeting] = useState('')                                            // #5 - Greetings
+  const [userName, setUserName] = useState('')                                            // #6 - Add user name to greeting  
+  const [detecting, setDetecting] = useState(false)                                       // #7 - Detect user location
+  const [location, setLocation] = useState('')                                            // #8 - Put exact location on textbox
+  const [loading, setLoading] = useState(false)                                           // #9 - Initiate spinner icon
+  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false) // #10 - Location restriction
+  const [message, setMessage] = useState({ text: '', type: '' })                          // #11 - Detect location failed
+  const navigate = useNavigate()                                                          // #12 - Redirect to Core.jsx
+  const { isDarkMode } = useDarkMode()                                                    // #13 - Dark mode
 
   // ============================== First Prompt ("Join your neighbors in building...") ==============================
   useEffect(() => {
     const storedName = localStorage.getItem('userName')
+    const hasSeenWelcome = localStorage.getItem('welcomeShown')
+
     if (storedName) {
       setUserName(storedName)
+      if (!hasSeenWelcome) {
+        setShowWelcomeModal(true)
+      }
     } else {
       setshowFirstPrompt(true)
     }
@@ -36,16 +42,10 @@ function App() {
     }
 
     try {
-      const generatedUserId = uuidv4() // Generate unique UUID for the new user
-
-      const { data, error } = await supabase // Insert user into Supabase
+      const generatedUserId = uuidv4()
+      const { data, error } = await supabase
         .from('users')
-        .insert([
-          {
-            ui: generatedUserId,
-            name: nameInput.trim(),
-          },
-        ])
+        .insert([{ ui: generatedUserId, name: nameInput.trim() }])
         .select()
 
       if (error) {
@@ -54,16 +54,33 @@ function App() {
         return
       }
 
-      localStorage.setItem('userName', nameInput.trim()) // Save locally for session persistence
+      localStorage.setItem('userName', nameInput.trim())
       localStorage.setItem('userId', generatedUserId)
       setUserName(nameInput.trim())
       setUserId(generatedUserId)
 
       setshowFirstPrompt(false)
+
+      // Show welcome modal if it's the user's first time
+      const hasSeenWelcome = localStorage.getItem('welcomeShown')
+      if (!hasSeenWelcome) {
+        setShowWelcomeModal(true)
+        localStorage.setItem('welcomeShown', 'true')
+      }
     } catch (err) {
       console.error(err)
       showMessage('Something went wrong.', 'error')
     }
+  }
+
+  // ============================== Show Welcome Modal ==============================
+  localStorage.setItem('welcomeShown', 'true')
+
+  const hasSeenWelcome = localStorage.getItem('welcomeShown')
+  if (!storedName) {
+    setshowFirstPrompt(true)
+  } else if (!hasSeenWelcome) {
+    setShowWelcomeModal(true)
   }
 
   // ============================== Greetings ==============================
@@ -211,9 +228,131 @@ function App() {
 
   // ============================== Start of UI ==============================
   return (
-    <div className={`flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out ${
-      isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]'
-    }`}>
+    <div
+      className={`
+        flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out
+        ${isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]'}`
+      }
+    >
+
+      {/* First Prompt Modal */}
+      {showFirstPrompt && (
+        <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
+
+          {/* First Greeting Container */}
+          <div
+            className="
+              flex flex-col items-center justify-center bg-[#008177]
+              w-[350px] lg:w-[350px] lg:h-[350px] p-6 text-[#e0e0e0]
+              rounded-[25px] shadow-xl
+            "
+          >
+
+            {/* Ulat PH Logo */}
+            <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
+
+            {/* First Greeting */}
+            <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
+              Join your neighbors in building a better community! Register your account to start reporting and tracking local issues.
+            </p>
+
+            {/* Name Input */}
+            <input
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
+              placeholder="Enter your name"
+            />
+
+            {/* Let's Go! Button */}
+            <button
+              onClick={handleRegister}
+              className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+            >
+              Let's Go!
+            </button>
+
+          </div>
+        </div>
+      )}
+
+      {/* Welcome Modal */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
+          
+          {/* Modal Container */}
+          <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[600px] lg:h-[500px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+            
+            {/* Ulat PH Logo */}
+            <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className="w-[75px] h-[75px] mb-4" />
+
+            {/* Title */}
+            <h1 className="text-2xl font-bold text-center mb-4 leading-7">
+              Welcome to Ulat PH!
+            </h1>
+
+            {/* Introduction */}
+            <p className="text-base text-center mb-4 leading-6 max-w-[500px]">
+              Ulat PH is a community-driven reporting web app that enables people in your
+              community to crowdsource and track local issues. You can see reports within
+              <span className="font-semibold"> 1 km</span> of your location, interact with
+              them, and even post your own reports!
+              <br /><br />
+              Ready to contribute to the community?
+            </p>
+
+            {/* Yes Button */}
+            <button
+              onClick={() => setShowWelcomeModal(false)}
+              className="bg-[#00786d] text-white py-2 px-6 mb-4 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+            >
+              Yes!
+            </button>
+
+            {/* Bottom Part */}
+            <div className="text-center space-y-1">
+
+              {/* iOS Users Notice */}
+              <span className="text-xs block font-bold">
+                For iOS users, you may need to enable location permissions.
+              </span>
+
+              {/* Directions */}
+              <span className="text-[0.65rem] block mb-4">
+                Settings → Privacy & Security → Location Services → Safari Websites →
+                While Using the App
+              </span>
+              
+              {/* Links */}
+              <div className="flex items-center justify-center mb-2 gap-2">
+
+                {/* GitHub */}
+                <a href="https://github.com/vnclrd" target="_blank" rel="noopener noreferrer">
+                  <img src="/github-logo.png" alt="GitHub Icon" className="w-4 h-4 filter invert" />
+                </a>
+
+                {/* LinkedIn */}
+                <a href="https://www.linkedin.com/in/vnclrd/" target="_blank" rel="noopener noreferrer">
+                  <img src="/linkedin-logo.png" alt="LinkedIn Icon" className="w-4 h-4 filter invert" />
+                </a>
+
+                {/* Portfolio Website */}
+                <a href="https://vnclrd.github.io/miguel-portfolio/" target="_blank" rel="noopener noreferrer">
+                  <img src="/portfolio-website-icon.png" alt="Portfolio Website" className="w-4 h-4 filter invert" />
+                </a>
+
+              </div>
+
+              {/* Developed by */}
+              <span className="text-[0.65rem] block">
+                Developed by Miguel Ivan Calarde
+              </span>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Message Box */}
       {message.text && (
@@ -258,38 +397,6 @@ function App() {
           </div>
         </div>
       </div>
-
-      {/* First Prompt Modal */}
-      {showFirstPrompt && (
-      <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
-        <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
-
-
-          <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
-
-          <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
-            Join your neighbors in building a better community! Register your account to start reporting and tracking local issues.
-          </p>
-
-          {/* Name Input */}
-          <input
-            type="text"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
-            placeholder="Enter your name"
-          />
-
-            <button
-              onClick={handleRegister}
-              className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
-            >
-              Let's Go!
-            </button>
-
-          </div>
-        </div>
-      )}
 
       {/* Hero Container */}
       <div className='flex flex-col items-center justify-center w-full lg:w-[1000px]'>
