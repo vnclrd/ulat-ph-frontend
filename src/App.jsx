@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
 import { useDarkMode } from './components/DarkModeContext'
 import { supabase } from './utils/supabaseClient'
-import { v4 as uuidv4 } from 'uuid'
 
 function App() {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null)            // #1 - Generate and set user ID
