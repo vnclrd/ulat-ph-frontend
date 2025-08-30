@@ -288,7 +288,7 @@ function App() {
 
         {/* Greeting (Good morning, Good afternoon, Good evening) */}
         <h1 className='text-[2rem] sm:text-3xl lg:text-4xl mb-4 lg:mb-8 text-[#e0e0e0] text-center'>
-          {greeting}, {userName || 'friend'}
+          {greeting}, {userName || 'neighbor'}!
         </h1>
 
         {/* Buttons and Text Area Container */}

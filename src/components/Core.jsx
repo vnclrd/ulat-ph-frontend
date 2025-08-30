@@ -643,21 +643,27 @@ function Core() {
   })
   L.Marker.prototype.options.icon = DefaultIcon
 
+  // ============================== Start of UI ==============================
   return (
     <div className='flex flex-col w-full min-h-screen bg-[#009688]'>
+
       {/* ================================================== Header Content ================================================== */}
       <header
         className={`
           fixed flex w-full h-[75px] top-0 bg-[#008377] z-1000 transition-colors duration-500 ease-in-out
           ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}`}
       >
-        <img
-          src='/ulat-ph-logo.png'
-          alt='Ulat PH Logo'
-          className='m-2.5 ml-5'
-        />
+
+        {/* Ulat PH Logo */}
+        <img src='/ulat-ph-logo.png' alt='Ulat PH Logo' className='m-2.5 ml-5' />
+
+        {/* Container for "Ulat PH, iulat mo na!" */}
         <div className='flex lg:flex-col items-center justify-center'>
+
+          {/* Ulat PH */}
           <h1 className='text-[1.5rem] text-[#e0e0e0] font-bold'>Ulat PH</h1>
+
+          {/* iulat mo na! */}
           <p className='hidden lg:block text-[0.9rem] text-[#e0e0e0] font-light mt-[-5px]'>
             iulat mo na!
           </p>
@@ -674,7 +680,8 @@ function Core() {
             : 'hidden'
         }`}
       >
-        {/* Panels */}
+
+        {/* MAIN PANEL */}
         <div
           className={`
             flex flex-col md:flex-row items-center md:items-start justify-between
@@ -683,236 +690,227 @@ function Core() {
             ${isDarkMode ? 'bg-transparent md:bg-[#11161f]' : 'bg-[#008c7f]'}
           `}
         >
-          {/* Left Panel */}
+
+          {/* LEFT PART OF MAIN PANEL */}
           <div className='flex flex-col w-full md:w-[50%] h-auto md:h-[500px]'>
+
+            {/* Page Title Container */}
             <div className='flex flex-col items-center text-center md:text-left'>
-              <h1
-                className={`
-                  text-[2rem] md:text-[2.5rem] text-[#e0e0e0] font-bold
-                `}
-              >
-                {isFilipino
-                  ? translations.fil.reports
-                  : translations.en.reports}
+
+              {/* Reports/Mga Report */}
+              <h1 className={`text-[2rem] md:text-[2.5rem] text-[#e0e0e0] font-bold`}>
+                {isFilipino ? translations.fil.reports : translations.en.reports}
               </h1>
+
+              {/* near your location/malapit sa iyong lokasyon */}
               <p className='text-sm text-[#e0e0e0] mb-5 text-center'>
-                {isFilipino
-                  ? translations.fil.reports_desc
-                  : translations.en.reports_desc}
+                {isFilipino ? translations.fil.reports_desc : translations.en.reports_desc}
+
                 <br />
+
+                {/* Detected location */}
                 <span className='italic text-[#e0e0e0]'>{locationName}</span>
               </p>
             </div>
 
             {/* Reports Container */}
             <div className='flex items-center justify-center'>
+
+              {/* Scrollable Report Cards Container */}
               <div
                 className='
                   flex flex-col w-full h-[400px] md:h-[350px] pr-3 gap-4 overflow-y-scroll rounded-lg
                   scrollbar scrollbar-thin scrollbar-thumb-[#008c7f] scrollbar-track-[#e0e0e0] 
                 '
               >
+                
+                {/* Display Cards */}
                 {reports.length > 0 ? (
                   reports.map((report) => (
+
+                    // Show card information if available 
                     <div
                       key={report.id}
-                      className={`
-                        w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0
-                        cursor-pointer p-4
-                        ${
-                          selectedReport?.id === report.id
-                            ? 'border-2 border-[#e0e0e0]'
-                            : ''
-                        },
-                        ${
-                          isDarkMode
-                            ? 'bg-[#19202b] border-[#e0e0e0]'
-                            : 'bg-[#00786d] border-[#e0e0e0]'
-                        }
-                        `}
                       onClick={() => setSelectedReport(report)}
+                      className={`w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0 cursor-pointer p-4
+                        ${selectedReport?.id === report.id ? 'border-2 border-[#e0e0e0]' : ''},
+                        ${isDarkMode ? 'bg-[#19202b] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
+                      `}
                     >
+
+                      {/* Report Card Container */}
                       <div className='flex justify-between items-center w-full'>
+
+                        {/* Left Part of Card */}
                         <div className='flex flex-col'>
+
+                          {/* Report Name (Pothole, Broken Streetlight, etc...) */}
                           <h3 className='text-[#e0e0e0] font-bold text-base md:text-lg'>
-                            {report.issue_type === 'custom'
-                              ? report.custom_issue
-                              : report.issue_type}
+                            {report.issue_type === 'custom' ? report.custom_issue : report.issue_type}
                           </h3>
+
+                          {/* Location Coordinates */}
                           <p className='text-sm text-[#a0a0a0] truncate mt-[-4px]'>
-                            {report.latitude?.toFixed(4)},{' '}
-                            {report.longitude?.toFixed(4)}
+                            {report.latitude?.toFixed(4)},{' '}{report.longitude?.toFixed(4)}
                           </p>
                         </div>
-                        <div className='flex items-center gap-2'>
-                          {/* Sightings */}
-                          <img
-                            src='/vision-icon.png'
-                            alt='Sightings Icon'
-                            className='w-[26px] h-[26px] filter invert'
-                          />
-                          <span className='text-[#e0e0e0] text-[1.25rem] mr-2'>
-                            {report.sightings?.count || 0}
-                          </span>
 
-                          {/* Resolved Votes */}
-                          <img
-                            src='/resolved-icon.png'
-                            alt='Resolved Icon'
-                            className='w-[26px] h-[26px]'
-                          />
-                          <span className='text-[#e0e0e0] text-[1.25rem]'>
-                            {report.resolved?.count || 0}
-                          </span>
+                        {/* Right Part of Card */}
+                        <div className='flex items-center gap-2'>
+
+                          {/* Sightings Icon */}
+                          <img src='/vision-icon.png' alt='Sightings Icon' className='w-[26px] h-[26px] filter invert' />
+                          {/* Sightings Count */}
+                          <span className='text-[#e0e0e0] text-[1.25rem] mr-2'>{report.sightings?.count || 0}</span>
+
+                          {/* Resolved Icon */}
+                          <img src='/resolved-icon.png' alt='Resolved Icon' className='w-[26px] h-[26px]' />
+                          {/* Resolved Count */}
+                          <span className='text-[#e0e0e0] text-[1.25rem]'>{report.resolved?.count || 0}</span>
+
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
+
+                  // "No reports found."
                   <div className='text-[#e0e0e0] text-center italic mt-10'>
-                    {isFilipino
-                      ? translations.fil.reports_none
-                      : translations.en.reports_none}
+                    {isFilipino ? translations.fil.reports_none : translations.en.reports_none}
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Right Panel */}
+          {/* RIGHT PART OF MAIN PANEL */}
           <div className='flex items-center justify-center w-full md:w-[50%] h-auto md:h-[500px]'>
+
+            {/* Container of Success/Error Modal Popup (Take up whole screen) */}
             <div className='flex flex-col w-full h-full rounded-[15px] gap-5'>
-              {/* Success / Error Modal */}
+
+              {/* Success/Error Modal */}
               <div
-                className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300 ${
-                  buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                } ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
+                className={`fixed inset-0 flex items-center justify-center z-50 transition-opacity duration-300
+                  ${buttonStatus ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+                  ${isDarkMode ? 'bg-black/80' : 'bg-black/50'}`}
               >
+
                 <div
-                  className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500 ${
-                    isDarkMode
-                      ? 'bg-[#1e2a44] text-[#e0e0e0]'
-                      : 'bg-[#008177] text-[#e0e0e0]'
-                  }`}
+                  className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500
+                    ${isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'}
+                  `}
                 >
-                  <img
-                    src='./ulat-ph-logo.png'
-                    alt='Ulat PH Logo'
-                    className='w-[75px] h-[75px] mb-4'
-                  />
+
+                  {/* Ulat PH Logo */}
+                  <img src='./ulat-ph-logo.png' alt='Ulat PH Logo' className='w-[75px] h-[75px] mb-4' />
+                  
+                  {/* Message if Success or Error */}
                   <h2 className='text-xl font-bold mb-4 text-center'>
                     {buttonStatus?.type === 'success' ? 'Success' : 'Error'}
                   </h2>
+                  
+                  {/* Description of Success or Error */}
                   <p className='text-md text-center mb-6 leading-6'>
                     {buttonStatus?.message}
                   </p>
+                  
+                  {/* Success Modal Button Container */}
                   <div className='flex gap-3'>
+
+                    {/* Success Modal Button */}
                     <button
                       onClick={() => setButtonStatus(null)}
-                      className={`
-                        text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
+                      className={`text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
                         ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
                       `}
                     >
                       Alright!
                     </button>
+
                   </div>
                 </div>
               </div>
-              {/* Image Holder */}
+
+              {/* Image of Report Container */}
               <div
-                className={`
-                  w-full h-[200px] md:h-[50%] rounded-[15px] text-[#e0e0e0] flex items-center justify-center
+                className={`w-full h-[200px] md:h-[50%] rounded-[15px] text-[#e0e0e0] flex items-center justify-center
                   ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
-                  `}
+                `}
               >
+                
+                {/* Image of report retrieval */}
                 {selectedReport && selectedReport.image_filename ? (
-                  <img
-                    src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
+
+                  // Retrieve image of report from database (Supbase)
+                  <img src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
                     alt='Photo of report'
                     className='w-full h-full object-contain rounded-[15px]'
                   />
                 ) : (
+
+                  // Message if there is no image in the report
                   <span className='italic'>
-                    {isFilipino
-                      ? translations.fil.reports_no_image
-                      : translations.en.reports_no_image}
+                    {isFilipino ? translations.fil.reports_no_image : translations.en.reports_no_image}
                   </span>
+
                 )}
               </div>
 
-              {/* Description */}
+              {/* Number of Sightings and Resolved */}
               <div className='flex items-center justify-center w-full h-auto gap-2 text-[#e0e0e0] text-sm md:text-[1rem]'>
-                <img
-                  src='/vision-icon.png'
-                  alt='Sightings Icon'
-                  className='w-[26px] h-[26px] filter invert'
-                />
+
+                {/* Sightings Icon */}
+                <img src='/vision-icon.png' alt='Sightings Icon' className='w-[26px] h-[26px] filter invert' />
+                {/* Sightings Count */}
                 <p className='mr-2'>
                   {selectedReport?.sightings?.count || 0}{' '}
-                  {isFilipino
-                    ? translations.fil.reports_sightings
-                    : translations.en.reports_sightings}
+                  {isFilipino ? translations.fil.reports_sightings : translations.en.reports_sightings}
                 </p>
-                <img
-                  src='/resolved-icon.png'
-                  alt='Resolved Icon'
-                  className='w-[26px] h-[26px]'
-                />
+
+                {/* Resolved Icon */}
+                <img src='/resolved-icon.png' alt='Resolved Icon' className='w-[26px] h-[26px]' />
+                {/* Resolved Count */}
                 <p>
                   {selectedReport?.resolved?.count || 0}{' '}
-                  {isFilipino
-                    ? translations.fil.reports_resolved
-                    : translations.en.reports_resolved}
+                  {isFilipino ? translations.fil.reports_resolved : translations.en.reports_resolved}
                 </p>
               </div>
-
+              
+              {/* Description of Report Container */}
               <div
-                className={`
-                  w-full md:h-[25%] bg-[#00786d] rounded-[15px] text-[#e0e0e0] overflow-y-scroll p-4
+                className={`w-full md:h-[25%] bg-[#00786d] rounded-[15px] text-[#e0e0e0] overflow-y-scroll p-4
                   ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
-                  `}
+                `}
               >
+
+                {/* "Select a report to view its details/Pumili ng report para tingnan ang mga detalye nito" */}
                 <p>
-                  {selectedReport?.description ||
-                    (isFilipino
-                      ? translations.fil.reports_details
-                      : translations.en.reports__details)}
+                  {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports_details)}
                 </p>
               </div>
 
               {/* Buttons */}
               <div className='flex gap-3'>
+
                 {/* Sightings Button */}
                 <button
                   onClick={() => handleSightingsClick(selectedReport?.id)}
-                  disabled={
-                    !selectedReport ||
-                    buttonLoading[`sightings-${selectedReport?.id}`] ||
-                    userClickedButtons[`${selectedReport?.id}_sightings`]
-                  }
+                  disabled={!selectedReport || buttonLoading[`sightings-${selectedReport?.id}`] || userClickedButtons[`${selectedReport?.id}_sightings`]}
                   className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${
-                      userClickedButtons[`${selectedReport?.id}_sightings`]
+                    ${userClickedButtons[`${selectedReport?.id}_sightings`]
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                     },
-                    ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
-                    }
+                    ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                   `}
                 >
-                  <img
-                    src='/vision-icon.png'
-                    alt='Vision Icon'
-                    className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2 ${
-                      userClickedButtons[`${selectedReport?.id}_sightings`]
-                        ? 'invert opacity-60'
-                        : 'invert'
-                    }`}
+
+                  {/* Sightings Icon */}
+                  <img src='/vision-icon.png' alt='Vision Icon' className={`w-[30px] md:w-[40px] h-[30px] md:h-[40px] filter mr-2
+                    ${userClickedButtons[`${selectedReport?.id}_sightings`] ? 'invert opacity-60' : 'invert'}`}
                   />
+                  
                   {userClickedButtons[`${selectedReport?.id}_sightings`]
                     ? isFilipino
                       ? translations.fil.reports_seen
@@ -921,39 +919,32 @@ function Core() {
                     ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_see
-                    : translations.en.reports_see}
+                    : translations.en.reports_see
+                  }
                 </button>
 
                 {/* Resolved Button */}
                 <button
                   onClick={() => handleResolvedClick(selectedReport?.id)}
-                  disabled={
-                    !selectedReport ||
-                    buttonLoading[`resolved-${selectedReport?.id}`] ||
-                    userClickedButtons[`${selectedReport?.id}_resolved`]
-                  }
+                  disabled={!selectedReport || buttonLoading[`resolved-${selectedReport?.id}`] || userClickedButtons[`${selectedReport?.id}_resolved`]}
                   className={`flex items-center justify-center w-[50%] h-[50px] text-[#e0e0e0] text-[0.8rem] md:text-[1rem] rounded-[15px] transition-colors
-                    ${
-                      userClickedButtons[`${selectedReport?.id}_resolved`]
+                    ${userClickedButtons[`${selectedReport?.id}_resolved`]
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                     },
-                    ${
-                      isDarkMode
-                        ? 'bg-[#040507] hover:bg-[#212730]'
-                        : 'bg-[#00786d] hover:bg-[#006b61]'
-                    }
+                    ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                   `}
                 >
+
+                  {/* Resolved Icon */}
                   <img
                     src='/resolved-icon.png'
-                    alt='Vision Icon'
-                    className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2 ${
-                      userClickedButtons[`${selectedReport?.id}_resolved`]
-                        ? 'opacity-60'
-                        : ''
-                    }`}
+                    alt='Resolved Icon'
+                    className={`w-[30px] md:w-[30px] h-[30px] md:h-[30px] mr-1 md:mr-2
+                      ${userClickedButtons[`${selectedReport?.id}_resolved`] ? 'opacity-60' : ''}
+                    `}
                   />
+
                   {userClickedButtons[`${selectedReport?.id}_resolved`]
                     ? isFilipino
                       ? translations.fil.reports_has_been_resolved
@@ -962,7 +953,8 @@ function Core() {
                     ? 'Loading...'
                     : isFilipino
                     ? translations.fil.reports_has_been_already_resolved
-                    : translations.en.reports_has_been_already_resolved}
+                    : translations.en.reports_has_been_already_resolved
+                  }
                 </button>
               </div>
             </div>
