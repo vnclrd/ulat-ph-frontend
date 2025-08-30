@@ -8,11 +8,12 @@ import { useLocation } from 'react-router-dom'
 import { initProfanity, containsProfanity, normalizeText, } from '../utils/profanity'
 
 function Core() {
+  const userId = localStorage.getItem('userId')             // User Authentication
 
   // ============================== Enhanced Button Validation Functions ==============================
 
   // Add these state variables to your existing state declarations:
-  const [userInteractions, setUserInteractions] = useState({}) // Format: { reportId_buttonType: true }
+  const [userInteractions, setUserInteractions] = useState({})
   const [loadingInteractions, setLoadingInteractions] = useState(true)
   
   // ============================== Load User Interactions from Supabase ==============================
@@ -310,70 +311,8 @@ function Core() {
     }
   }, [userId])
 
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const userId = localStorage.getItem('userId')             // User Authentication
   const [user, setUser] = useState(null)
   const SUPABASE_PROJECT_ID = 'yxpvelboekyahvwmzjry'        // Supabase Backend Connection
   const location = useLocation()                            // Get location from App.jsx
@@ -609,187 +548,6 @@ function Core() {
       console.error('Error fetching reports:', error)
     }
   }
-
-  // ============================== Function to Handle Sightings Button Click ==============================
-  /* const handleSightingsClick = async (reportId) => {
-    if (
-      !reportId ||
-      buttonLoading[`sightings-${reportId}`] ||
-      userClickedButtons[`${reportId}_sightings`]
-    )
-      return
-
-    setButtonLoading((prev) => ({ ...prev, [`sightings-${reportId}`]: true }))
-    setButtonStatus(null)
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/sightings`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-
-      const result = await response.json()
-
-      if (result.success) {
-        // Update counts locally instead of waiting for fetchReports()
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  sightings: {
-                    ...report.sightings,
-                    count: (report.sightings?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        )
-
-        // Update selected report if it's currently displayed
-        if (selectedReport?.id === reportId) {
-          setSelectedReport((prev) => ({
-            ...prev,
-            sightings: {
-              ...prev.sightings,
-              count: (prev.sightings?.count || 0) + 1,
-            },
-          }))
-        }
-
-        // Mark button as clicked
-        setUserClickedButtons((prev) => {
-          const updated = {
-            ...prev,
-            [`${reportId}_sightings`]: true, // or resolved
-          }
-          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
-          return updated
-        })
-
-        setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
-      } else {
-        setButtonStatus({
-          type: 'error',
-          message: result.message,
-        })
-      }
-    } catch (error) {
-      setButtonStatus({
-        type: 'error',
-        message: 'Failed to record sighting',
-      })
-    } finally {
-      setButtonLoading((prev) => ({
-        ...prev,
-        [`sightings-${reportId}`]: false,
-      }))
-    }
-  } */
-
-  // ============================== Function to Handle Resolved Button Click ==============================
-  /* const handleResolvedClick = async (reportId) => {
-    if (
-      !reportId ||
-      buttonLoading[`resolved-${reportId}`] ||
-      userClickedButtons[`${reportId}_resolved`]
-    )
-      return
-
-    setButtonLoading((prev) => ({ ...prev, [`resolved-${reportId}`]: true }))
-    setButtonStatus(null)
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/reports/${reportId}/resolved`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      )
-
-      const result = await response.json()
-
-      if (result.success) {
-        // Update counts locally
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? {
-                  ...report,
-                  resolved: {
-                    ...report.resolved,
-                    count: (report.resolved?.count || 0) + 1,
-                  },
-                }
-              : report
-          )
-        )
-
-        // Update selected report if it's currently displayed
-        if (selectedReport?.id === reportId) {
-          setSelectedReport((prev) => ({
-            ...prev,
-            resolved: {
-              ...prev.resolved,
-              count: (prev.resolved?.count || 0) + 1,
-            },
-          }))
-        }
-
-        // Mark button as clicked
-        setUserClickedButtons((prev) => {
-          const updated = {
-            ...prev,
-            [`${reportId}_resolved`]: true, // or resolved
-          }
-          localStorage.setItem("userClickedButtons", JSON.stringify(updated))
-          return updated
-        })
-
-        setButtonStatus({
-          type: 'success',
-          message: result.message,
-        })
-      } else {
-        setButtonStatus({
-          type: 'error',
-          message: result.message,
-        })
-      }
-    } catch (error) {
-      setButtonStatus({
-        type: 'error',
-        message: 'Failed to record resolution',
-      })
-    } finally {
-      setButtonLoading((prev) => ({
-        ...prev,
-        [`resolved-${reportId}`]: false,
-      }))
-    }
-  } */
-
-  // ============================== Load Clicked Buttons ==============================
-  /* useEffect(() => {
-    const stored = localStorage.getItem('userClickedButtons')
-    if (stored) {
-      setUserClickedButtons(JSON.parse(stored))
-    }
-  }, [])
-
-  // Update your selectedReport useEffect or add this
-  useEffect(() => {
-    if (selectedReport?.id) {
-      checkUserButtonStatus(selectedReport.id)
-    }
-  }, [selectedReport?.id]) */
 
   // Fetch reports from backend (reports.json) and filter them based on location
   useEffect(() => {
