@@ -5,23 +5,68 @@ import { supabase } from './utils/supabaseClient'
 import { v4 as uuidv4 } from 'uuid'
 
 function App() {
-  // User Authentication
-  const [userId, setUserId] = useState(localStorage.getItem('userId') || null)
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null)            // #1 - Generate and set user ID after entering name
+  const [showFirstPrompt, setshowFirstPrompt] = useState(false)                           // #2 - ("Join your neighbors in building...")
+  const [nameInput, setNameInput] = useState('')                                          // #3 - Input user name
+  const [greeting, setGreeting] = useState('')                                            // #4 - Greeting ("Good morning", "Good afternoon", "Good evening")
+  const [userName, setUserName] = useState('')                                            // #5 - ("Good Morning, Miguel")
+  const [detecting, setDetecting] = useState(false)                                       // #6 - Detect user location after navigation button click
+  const [location, setLocation] = useState('')                                            // #7 - Put exact location on textbox after navigation button click
+  const [loading, setLoading] = useState(false)                                           // #8 - Initiate spinner icon after clicking Navigate and Submit buttons
+  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false) // #9 - ("Sorry, Ulat PH is currently only available within Metro Manila..."")
+  const [message, setMessage] = useState({ text: '', type: '' })                          // #10 - ("Failed to find location. Please try again.")
+  const navigate = useNavigate()                                                          // #11 - Redirect to another page (Core.jsx)
+  const { isDarkMode } = useDarkMode()                                                    // #12 - Dark mode
 
-  const [location, setLocation] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [detecting, setDetecting] = useState(false)
-  const [userName, setUserName] = useState('')
-  const [showNamePrompt, setShowNamePrompt] = useState(false)
-  const [nameInput, setNameInput] = useState('')
-  const [message, setMessage] = useState({ text: '', type: '' })
-  const [greeting, setGreeting] = useState('')
-  const [showLocationRestrictionModal, setShowLocationRestrictionModal] = useState(false); // State for Metro Manila restriction popup
+  // ============================== A. Register name to database (Supabase) - Contains #1, #3, #5 ==============================
+  const handleRegister = async () => {
+    if (!nameInput.trim()) {
+      showMessage('Please enter your name.', 'error')
+      return
+    }
 
-  const navigate = useNavigate()
-  const { isDarkMode } = useDarkMode()
+    try {
+      const generatedUserId = uuidv4() // Generate unique UUID for the new user
 
-  // Function to get dynamic greeting based on time
+      const { data, error } = await supabase // Insert user into Supabase
+        .from('users')
+        .insert([
+          {
+            ui: generatedUserId,
+            name: nameInput.trim(),
+          },
+        ])
+        .select()
+
+      if (error) {
+        console.error(error)
+        showMessage("Sorry, I didn't get that. Please try again.", 'error')
+        return
+      }
+
+      localStorage.setItem('userName', nameInput.trim()) // Save locally for session persistence
+      localStorage.setItem('userId', generatedUserId)
+      setUserName(nameInput.trim())
+      setUserId(generatedUserId)
+
+      setshowFirstPrompt(false)
+    } catch (err) {
+      console.error(err)
+      showMessage('Something went wrong.', 'error')
+    }
+  }
+
+  // ============================== B. ("Join your neighbors in building...") - Contains #5 ==============================
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName')
+    if (storedName) {
+      setUserName(storedName)
+    } else {
+      setshowFirstPrompt(true)
+    }
+  }, [])
+
+  // ============================== C. Greetings - Contains #4 ==============================
   const getGreeting = () => {
     const hour = new Date().getHours()
     
@@ -34,89 +79,24 @@ function App() {
     }
   }
 
-  // useEffect to handle name storage and retrieval
-  useEffect(() => {
-    const storedName = localStorage.getItem('userName')
-    if (storedName) {
-      setUserName(storedName)
-    } else {
-      setShowNamePrompt(true)
-    }
-  }, [])
-
-  // useEffect to set initial greeting and update it every minute
-  useEffect(() => {
+  useEffect(() => { 
     const updateGreeting = () => {
       setGreeting(getGreeting())
     }
 
-    // Set initial greeting
     updateGreeting()
 
-    // Update greeting every minute
     const interval = setInterval(updateGreeting, 60000)
-
-    // Cleanup interval on component unmount
+    
     return () => clearInterval(interval)
   }, [])
 
-  const handleSaveName = () => {
-    if (nameInput.trim()) {
-      localStorage.setItem('userName', nameInput.trim())
-      setUserName(nameInput.trim())
-      setShowNamePrompt(false)
-    } else {
-      showMessage('Please enter a name.', 'error')
-    }
-  }
-
   const showMessage = (text, type) => {
     setMessage({ text, type })
-    setTimeout(() => setMessage({ text: '', type: '' }), 5000) // Hide after 5 seconds
+    setTimeout(() => setMessage({ text: '', type: '' }), 5000)
   }
-
-  const handleRegister = async () => {
-    if (!nameInput.trim()) {
-      showMessage('Please enter your name.', 'error')
-      return
-    }
-
-    try {
-      // Generate unique UUID for the new user
-      const generatedUserId = uuidv4()
-
-      // Insert user into Supabase
-      const { data, error } = await supabase
-        .from('users')
-        .insert([
-          {
-            ui: generatedUserId,
-            name: nameInput.trim(),
-          },
-        ])
-        .select()
-
-      if (error) {
-        console.error(error)
-        showMessage('Failed to register. Try again.', 'error')
-        return
-      }
-
-      // Save locally for session persistence
-      localStorage.setItem('userName', nameInput.trim())
-      localStorage.setItem('userId', generatedUserId)
-      setUserName(nameInput.trim())
-      setUserId(generatedUserId)
-
-      setShowNamePrompt(false)
-      showMessage('Registration successful!', 'success')
-    } catch (err) {
-      console.error(err)
-      showMessage('Something went wrong.', 'error')
-    }
-  }
-
-   // Function to check if location is within Metro Manila
+  
+  // ============================== D. Set cities within Metro Manila ==============================
   const isWithinMetroManila = (locationName) => {
     const metroManilaKeywords = [
       'metro manila',
@@ -144,6 +124,49 @@ function App() {
     return metroManilaKeywords.some(keyword => locationLower.includes(keyword))
   }
 
+  // ============================== E. Detect user location - Contains #6 ==============================
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      showMessage('Geolocation is not supported by your browser.', 'error')
+      return
+    }
+
+    setDetecting(true)
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+
+        try {
+          const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/reverse-geocode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude }),
+          })
+
+          const data = await response.json()
+
+          if (response.ok) {
+            setLocation(data.address)
+          } else {
+            showMessage(data.error || 'Failed to get address', 'error')
+          }
+        } catch (error) {
+          console.error(error)
+          showMessage('Failed to detect location. Please try again.', 'error')
+        } finally {
+          setDetecting(false)
+        }
+      },
+      (error) => {
+        console.error(error)
+        setDetecting(false)
+        showMessage('Unable to retrieve your location. Please check your browser permissions.', 'error')
+      }
+    )
+  }
+
+  // ============================== F. Redirect to Core.jsx if location if valid (within Metro Manila) - Contains #6, #8 ==============================
   const handleRedirect = async () => {
     if (!location.trim()) {
         setMessage({ text: 'Please enter a location.', type: 'error' })
@@ -193,47 +216,7 @@ function App() {
     }
   }
 
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      showMessage('Geolocation is not supported by your browser.', 'error')
-      return
-    }
-
-    setDetecting(true)
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords
-
-        try {
-          const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/reverse-geocode', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ latitude, longitude }),
-          })
-
-          const data = await response.json()
-
-          if (response.ok) {
-            setLocation(data.address)
-          } else {
-            showMessage(data.error || 'Failed to get address', 'error')
-          }
-        } catch (error) {
-          console.error(error)
-          showMessage('Failed to detect location. Please try again.', 'error')
-        } finally {
-          setDetecting(false)
-        }
-      },
-      (error) => {
-        console.error(error)
-        setDetecting(false)
-        showMessage('Unable to retrieve your location. Please check your browser permissions.', 'error')
-      }
-    )
-  }
-
+  // ============================== Start of UI ==============================
   return (
     <div className={`flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out ${
       isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]'
@@ -275,10 +258,10 @@ function App() {
         </div>
       </div>
 
-      {/* Name Prompt Modal */}
-      {showNamePrompt && (
+      {/* First Prompt Modal */}
+      {showFirstPrompt && (
       <div className="fixed inset-0 bg-[#00786d] bg-opacity-50 flex items-center justify-center z-50">
-        <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[450px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
+        <div className="flex flex-col items-center justify-center bg-[#008177] w-[350px] lg:w-[400px] lg:h-[400px] p-6 text-[#e0e0e0] rounded-[25px] shadow-xl">
           <img src="./ulat-ph-logo.png" alt="Ulat PH Logo" className='w-[75px] h-[75px] mb-4' />
           <p className="text-sm text-center mb-4 text-[#e0e0e0] leading-6">
             Join your neighbors in building a better community! Register your account to start reporting and tracking local issues.
@@ -292,23 +275,25 @@ function App() {
             className="p-2 rounded-full mb-4 w-full text-center bg-[#00786d] text-white placeholder-gray-300"
             placeholder="Enter your name"
           />
-          <button
-            onClick={handleRegister}
-            className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
-          >
-            Let's Go!
-          </button>
+            <button
+              onClick={handleRegister}
+              className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
+            >
+              Let's Go!
+            </button>
+          </div>
         </div>
-      </div>
-    )}
+      )}
 
       {/* Hero Container */}
       <div className='flex flex-col items-center justify-center w-full lg:w-[1000px]'>
         <h1 className='text-[2rem] sm:text-3xl lg:text-4xl mb-4 lg:mb-8 text-[#e0e0e0] text-center'>
           {greeting}, {userName || 'friend'}
         </h1>
+
         {/* Buttons and Text Area Container */}
         <div className='flex w-full lg:w-[600px] items-center justify-center'>
+
           {/* Detect Location Button */}
           <button
             onClick={handleDetectLocation}
@@ -319,15 +304,16 @@ function App() {
                 : 'bg-[#e0e0e0] hover:bg-gray-200'
             }`}
           >
+
             {/* Conditional Rendering */}
             {detecting ? (
-              // Loading spinner icon
-              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div> // Loading spinner icon
             ) : (
-              // Original navigation icon
-              <img src="/navigation-icon.png" alt="Target Icon" className="w-6 h-6" />
+              <img src="/navigation-icon.png" alt="Target Icon" className="w-6 h-6" /> // Original navigation icon
             )}
+
           </button>
+
           {/* Text Area */}
           <input
             type='text'
@@ -336,6 +322,7 @@ function App() {
             onChange={(e) => setLocation(e.target.value)}
             className='flex w-[225px] sm:w-[350px] md:w-[350px] lg:w-[500px] h-12 bg-[#e0e0e0] rounded-full pl-4 pr-4 mr-2.5 focus:outline-none focus:ring-2 focus:ring-[#00796b] shadow-[_0_2px_2px_rgba(0,0,0,0.5)]'
           />
+
           {/* Submit Button */}
           <button
             onClick={handleRedirect}
@@ -346,18 +333,22 @@ function App() {
                 : 'bg-gray-300 cursor-not-allowed'
             }`}
           >
+            
             {/* Conditional Rendering */}
             {loading ? (
-              // Loading spinner icon
-              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-3 border-[#1e1e1e]"></div> // Loading spinner icon
             ) : (
-              // Original arrow icon
-              <img src="/arrow-icon.png" alt="Arrow Icon" className="w-5 h-5" />
+              <img src="/arrow-icon.png" alt="Arrow Icon" className="w-5 h-5" /> // Original arrow icon
             )}
+
           </button>
+
         </div>
+        
         <p className='text-[#e0e0e0] text-xs mt-4 lg:mt-6 italic'>Tip: You can pin your exact location later.</p>
+
       </div>
+
     </div>
   )
 }
