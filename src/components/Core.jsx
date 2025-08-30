@@ -353,7 +353,6 @@ function Core() {
       reports_desc: 'near your location:',
       reports_none: 'No reports found.',
       reports_no_image: 'No image available',
-      reports_details: 'Select a report to view its details.',
       reports_sightings: 'people saw this issue',
       reports_resolved: 'people say it has been resolved',
       reports_see: 'I see this too',
@@ -386,7 +385,6 @@ function Core() {
       reports_desc: 'malapit sa iyong lokasyon:',
       reports_none: 'Walang nahanap na ulat.',
       reports_no_image: 'Walang imahe',
-      reports_details: 'Pumili ng report para tingnan ang mga detalye nito',
       reports_sightings: 'na tao ang nakakita nito',
       reports_resolved: 'na tao na nagsasabing ito ay nalutas na',
       reports_see: 'Nakita ko rin ito',
@@ -996,17 +994,16 @@ function Core() {
                 {/* Description */}
                 <div 
                   className={`
-                    flex items-center justify-center w-[50%] md:h-full
-                    bg-[#00786d] rounded-[15px] text-sm md:text-[1rem] 
-                    text-[#e0e0e0] overflow-y-scroll p-4
+                    w-[50%] md:h-full bg-[#00786d] rounded-[15px] text-sm
+                    md:text-[1rem] text-[#e0e0e0] overflow-y-scroll p-4
                     ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
                   `}
                 >
 
                   {/* Description of Image */}
-                  <p>
-                    {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports_details)}
-                  </p>
+                    <p>
+                      {selectedReport?.description}
+                    </p>
                   
                 </div>
               </div>
