@@ -22,7 +22,7 @@ function App() {
   // ============================== First Prompt ("Join your neighbors in building...") ==============================
   useEffect(() => {
     const storedName = localStorage.getItem('userName')
-    const hasSeenWelcome = localStorage.getItem('welcomeShown')
+    const hasSeenWelcome = localStorage.getItem('welcomeShown') === 'true'
 
     if (storedName) {
       setUserName(storedName)
@@ -54,15 +54,19 @@ function App() {
         return
       }
 
+      // Save name and ID to localStorage
       localStorage.setItem('userName', nameInput.trim())
       localStorage.setItem('userId', generatedUserId)
+
+      // Update states
       setUserName(nameInput.trim())
       setUserId(generatedUserId)
 
+      // Hide the name prompt modal
       setshowFirstPrompt(false)
 
-      // Show welcome modal if it's the user's first time
-      const hasSeenWelcome = localStorage.getItem('welcomeShown')
+      // SHOW WELCOME MODAL ON FIRST VISIT
+      const hasSeenWelcome = localStorage.getItem('welcomeShown') === 'true'
       if (!hasSeenWelcome) {
         setShowWelcomeModal(true)
         localStorage.setItem('welcomeShown', 'true')
@@ -71,16 +75,6 @@ function App() {
       console.error(err)
       showMessage('Something went wrong.', 'error')
     }
-  }
-
-  // ============================== Show Welcome Modal ==============================
-  localStorage.setItem('welcomeShown', 'true')
-
-  const hasSeenWelcome = localStorage.getItem('welcomeShown')
-  if (!storedName) {
-    setshowFirstPrompt(true)
-  } else if (!hasSeenWelcome) {
-    setShowWelcomeModal(true)
   }
 
   // ============================== Greetings ==============================
