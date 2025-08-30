@@ -134,11 +134,19 @@ function App() {
           if (response.ok) {
             setLocation(data.address)
           } else {
-            showMessage(data.error || 'Failed to get address', 'error')
+            // Fallback to coordinates if geocoding fails
+            if (response.status === 503) {
+              setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`)
+              showMessage('Location detected but address lookup failed. Using coordinates.', 'warning')
+            } else {
+              showMessage(data.error || 'Failed to get address', 'error')
+            }
           }
         } catch (error) {
           console.error(error)
-          showMessage('Failed to detect location. Please try again.', 'error')
+          // Fallback to coordinates
+          setLocation(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`)
+          showMessage('Network error. Using coordinates instead of address.', 'warning')
         } finally {
           setDetecting(false)
         }
