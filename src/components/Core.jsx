@@ -916,7 +916,7 @@ function Core() {
           <div className='w-full md:w-[50%] h-auto md:h-[500px] gap-4'>
 
             {/* Container of Success/Error Modal Popup (Take up whole screen) */}
-            <div className='flex flex-col w-full h-full rounded-[15px] gap-5'>
+            <div className='flex flex-col w-full h-full rounded-[15px]'>
 
               {/* Success/Error Modal */}
               <div
@@ -1003,7 +1003,7 @@ function Core() {
 
                   {/* Description of Image */}
                   <p>
-                    {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports__details)}
+                    {selectedReport?.description || (isFilipino ? translations.fil.reports_details : translations.en.reports_details)}
                   </p>
                   
                 </div>
