@@ -1035,7 +1035,7 @@ function Core() {
                   className={`
                     w-[50%] md:h-full bg-[#00786d] rounded-[15px] text-sm
                     md:text-[1rem] text-[#e0e0e0] overflow-y-scroll p-4
-                    ${isDarkMode ? 'bg-[#121212]' : 'bg-[#00786d]'}
+                    ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212]' : 'bg-[#00786d]'}
                   `}
                 >
 
@@ -1104,7 +1104,7 @@ function Core() {
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                       },
-                      ${isDarkMode ? 'bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                      ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                     `}
                   >
 
@@ -1140,7 +1140,7 @@ function Core() {
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                       },
-                      ${isDarkMode ? 'bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                      ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                     `}
                   >
                     {/* Resolved Icon */}
@@ -1566,6 +1566,7 @@ function Core() {
 
               {/* Toggle Button Container */}
               <div
+                onClick={handleToggle}
                 className={`
                   w-12 h-6 flex items-center rounded-full cursor-pointer transition-colors duration-300 ease-in-out p-0.5
                   ${isDarkMode ? 'bg-[#e0e0e0]' : 'bg-gray-500'}
@@ -1574,7 +1575,6 @@ function Core() {
 
                 {/* Toggle Button Circle */}
                 <div
-                  onClick={handleToggle}
                   className={`
                     w-5 h-5 rounded-full transition-transform duration-300 ease-in-out
                     ${isDarkMode ? 'bg-[rgba(31,31,31,1)] translate-x-6' : 'bg-[#e0e0e0] translate-x-0'}
@@ -1590,7 +1590,7 @@ function Core() {
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
