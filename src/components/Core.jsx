@@ -1768,7 +1768,15 @@ function Core() {
               <img src='/about-icon.png' alt='About Icon' className='w-6 h-6 md:w-7 md:h-7 filter invert brightness-[200%]' />
 
               {/* About */}
-              <h1 className='text-base md:text-lg font-bold'>About</h1>
+              <div className='flex flex-col leading-tight'>
+                
+                {/* About */}
+                <h1 className='text-base md:text-lg font-bold'>About</h1>
+
+                {/* App Version */}
+                <p className='text-xs md:text-sm'>Ulat PH v1.0</p>
+
+              </div>
 
             </div>
 
