@@ -225,7 +225,7 @@ function App() {
     <div
       className={`
         flex w-full min-h-screen items-center justify-center p-4 transition-colors duration-500 ease-in-out
-        ${isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]'}`
+        ${isDarkMode ? 'bg-[#121212]' : 'bg-[#009688]'}`
       }
     >
 
@@ -397,7 +397,7 @@ function App() {
 
         {/* Greeting (Good morning, Good afternoon, Good evening) */}
         <h1 className='text-[2rem] sm:text-3xl lg:text-4xl mb-4 lg:mb-8 text-[#e0e0e0] text-center'>
-          {greeting}, {userName || 'neighbor'}!
+          {greeting}, <span className='font-bold'>{userName || 'neighbor'}</span>!
         </h1>
 
         {/* Buttons and Text Area Container */}

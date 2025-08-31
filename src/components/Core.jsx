@@ -833,7 +833,7 @@ function Core() {
       <div
         className={`
           flex flex-col min-h-screen items-center justify-center pt-[65px] pb-[75px]
-          ${activeDiv === 'div1' ? isDarkMode ? 'bg-[#161d2e]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
+          ${activeDiv === 'div1' ? isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
         `}
       >
 
@@ -842,7 +842,7 @@ function Core() {
           className={`
             flex flex-col md:flex-row items-center md:items-start justify-between w-full max-w-[1200px] mx-auto gap-5
             p-5 rounded-[15px] bg-[#008c7f] lg:shadow-lg
-            ${isDarkMode ? 'bg-transparent md:bg-[#11161f]' : 'bg-[#008c7f]'}
+            ${isDarkMode ? 'bg-transparent md:bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
           `}
         >
 
@@ -892,7 +892,7 @@ function Core() {
                       }}
                       className={`w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0 cursor-pointer p-4
                         ${selectedReport?.id === report.id ? 'border-2 border-[#e0e0e0]' : ''},
-                        ${isDarkMode ? 'bg-[#19202b] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
+                        ${isDarkMode ? 'bg-[#121212] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
                       `}
                     >
 
@@ -964,7 +964,7 @@ function Core() {
 
                 <div
                   className={`flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500
-                    ${isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'}
+                    ${isDarkMode ? 'bg-[rgba(31,31,31,1)] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'}
                   `}
                 >
 
@@ -988,7 +988,7 @@ function Core() {
                     <button
                       onClick={() => setButtonStatus(null)}
                       className={`text-[#e0e0e0] py-2 px-6 rounded-full transition-colors cursor-pointer
-                        ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
+                        ${isDarkMode ? 'bg-[#121212]' : 'bg-[#00786d]'}
                       `}
                     >
                       Alright!
@@ -1005,7 +1005,7 @@ function Core() {
                 <div
                   className={`
                     w-[50%] md:w-[50%] md:h-full rounded-[15px] text-[#e0e0e0] flex items-center justify-center
-                    ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
+                    ${isDarkMode ? 'bg-[#121212]' : 'bg-[#00786d]'}
                   `}
                 >
 
@@ -1035,7 +1035,7 @@ function Core() {
                   className={`
                     w-[50%] md:h-full bg-[#00786d] rounded-[15px] text-sm
                     md:text-[1rem] text-[#e0e0e0] overflow-y-scroll p-4
-                    ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#00786d]'}
+                    ${isDarkMode ? 'bg-[#121212]' : 'bg-[#00786d]'}
                   `}
                 >
 
@@ -1104,7 +1104,7 @@ function Core() {
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                       },
-                      ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                      ${isDarkMode ? 'bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                     `}
                   >
 
@@ -1140,7 +1140,7 @@ function Core() {
                         ? 'bg-gray-500 cursor-not-allowed opacity-60'
                         : 'bg-[#00786d] cursor-pointer hover:bg-[#006b61] disabled:opacity-50 disabled:cursor-not-allowed'
                       },
-                      ${isDarkMode ? 'bg-[#040507] hover:bg-[#212730]' : 'bg-[#00786d] hover:bg-[#006b61]'}
+                      ${isDarkMode ? 'bg-[#121212] hover:bg-[#333333]' : 'bg-[#00786d] hover:bg-[#006b61]'}
                     `}
                   >
                     {/* Resolved Icon */}
@@ -1198,7 +1198,7 @@ function Core() {
       <div
         className={`
           flex flex-col sm:items-center sm:justify-center md:items-center md:justify-center lg:items-center lg:justify-center min-h-screen pt-[65px] pb-[75px]
-          ${activeDiv === 'div2' ? isDarkMode ? 'bg-[#1b253a]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
+          ${activeDiv === 'div2' ? isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
         `}
       >
 
@@ -1207,7 +1207,7 @@ function Core() {
           className={`
             flex flex-col items-center justify-center w-full sm:w-[90%] md:w-[80%] lg:w-[1000px] h-[500px] sm:h-[500px]
             md:h-[500px] bg-[#008c7f] rounded-[25px] text-[#e0e0e0] lg:shadow-lg p-5
-            ${isDarkMode ? 'bg-transparent md:bg-[#11161f]' : 'bg-[#008c7f]'}
+            ${isDarkMode ? 'bg-transparent md:bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
           `}
         >
 
@@ -1311,7 +1311,7 @@ function Core() {
               className={`
                 flex items-center justify-center w-full sm:w-[80%] md:w-[400px] h-[180px] sm:h-[200px]
                 rounded-xl text-[#e0e0e0] bg-[#009688] mb-3 text-center px-2 overflow-hidden
-                ${isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f]'}
+                ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212]' : 'bg-[#008c7f]'}
               `}
             >
 
