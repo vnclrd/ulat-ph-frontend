@@ -39,6 +39,19 @@ function Core() {
     }
   }
 
+  // ============================== Image Enlargement when Clicked ==============================
+  const [enlargedImage, setEnlargedImage] = useState(null)
+
+  const handleImageClick = (imageUrl) => {
+    if (enlargedImage === imageUrl) {
+      // If same image is clicked while enlarged, close it
+      setEnlargedImage(null)
+    } else {
+      // Enlarge the clicked image
+      setEnlargedImage(imageUrl)
+    }
+  }
+
   // ============================== Load User Interactions from Supabase ==============================
   const loadUserInteractions = async () => {
     if (!userId) {
@@ -1003,7 +1016,8 @@ function Core() {
                     <img 
                       src={`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`}
                       alt='Photo of report'
-                      className='w-full h-full object-cover rounded-[15px]'
+                      className='w-full h-full object-cover rounded-[15px] cursor-pointer hover:opacity-90 transition-opacity'
+                      onClick={() => handleImageClick(`https://${SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/reports-images/images/${selectedReport.image_filename}`)}
                     />
 
                   ) : (
@@ -1149,6 +1163,32 @@ function Core() {
 
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Enlarged Image Modal */}
+          <div
+            className={`fixed inset-0 flex items-center justify-center z-[60] transition-opacity duration-300
+              ${enlargedImage ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+              ${isDarkMode ? 'bg-black/90' : 'bg-black/80'}
+            `}
+            onClick={() => setEnlargedImage(null)} // Close when clicking background
+          >
+
+            {/* Enlarged Image Container */}
+            <div 
+              className="relative max-w-[95vw] max-h-[95vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+            >
+
+              {/* Enlarged Image */}
+              <img 
+                src={enlargedImage}
+                alt="Enlarged photo of report"
+                className="max-w-full max-h-full object-contain rounded-lg cursor-pointer"
+                onClick={() => setEnlargedImage(null)} // Close when clicking image
+              />
+
             </div>
           </div>
         </div>
