@@ -892,7 +892,7 @@ function Core() {
                       }}
                       className={`w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0 cursor-pointer p-4
                         ${selectedReport?.id === report.id ? 'border-2 border-[#e0e0e0]' : ''},
-                        ${isDarkMode ? 'bg-[#121212] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
+                        ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
                       `}
                     >
 
