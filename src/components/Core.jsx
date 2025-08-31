@@ -1538,7 +1538,7 @@ function Core() {
           <div
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
-              transition-colors duration-500 ease-in-out cursor-pointer text-[#e0e0e0]
+              transition-colors duration-500 ease-in-out text-[#e0e0e0]
               ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
