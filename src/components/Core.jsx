@@ -18,10 +18,24 @@ function Core() {
   // ============================== Mobile View - Scroll Down to Report ==============================
   const scrollToRightPanel = () => {
     if (window.innerWidth < 1024) {
-      window.scrollTo({ 
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth'
-      })
+      setTimeout(() => {
+        const maxScroll = Math.max(
+          document.body.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.clientHeight,
+          document.documentElement.scrollHeight,
+          document.documentElement.offsetHeight
+        );
+        
+        window.scrollTo({ 
+          top: maxScroll,
+          behavior: 'smooth'
+        });
+        
+        setTimeout(() => {
+          document.documentElement.scrollTop = document.documentElement.scrollHeight;
+        }, 500);
+      }, 200);
     }
   }
 
