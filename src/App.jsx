@@ -18,6 +18,7 @@ function App() {
   const [message, setMessage] = useState({ text: '', type: '' })                          // #11 - Detect location failed
   const navigate = useNavigate()                                                          // #12 - Redirect to Core.jsx
   const { isDarkMode } = useDarkMode()                                                    // #13 - Dark mode
+  const [registering, setRegistering] = useState(false)
 
   // ============================== First Prompt ("Join your neighbors in building...") ==============================
   useEffect(() => {
@@ -41,6 +42,10 @@ function App() {
       return
     }
 
+    if (registering) return // Prevent double-clicks
+
+    setRegistering(true) // Disable button
+
     try {
       const generatedUserId = uuidv4()
       const { data, error } = await supabase
@@ -51,6 +56,7 @@ function App() {
       if (error) {
         console.error(error)
         showMessage("Sorry, I didn't get that. Please try again.", 'error')
+        setRegistering(false)
         return
       }
 
@@ -65,7 +71,7 @@ function App() {
       // Hide the name prompt modal
       setshowFirstPrompt(false)
 
-      // SHOW WELCOME MODAL ON FIRST VISIT
+      // Show welcome modal on first visit
       const hasSeenWelcome = localStorage.getItem('welcomeShown') === 'true'
       if (!hasSeenWelcome) {
         setShowWelcomeModal(true)
@@ -74,6 +80,8 @@ function App() {
     } catch (err) {
       console.error(err)
       showMessage('Something went wrong.', 'error')
+    } finally {
+      setRegistering(false) // Re-enable button
     }
   }
 
@@ -262,6 +270,7 @@ function App() {
             {/* Let's Go! Button */}
             <button
               onClick={handleRegister}
+              disabled={registering}
               className="bg-[#00786d] text-white py-2 px-6 rounded-full hover:bg-[#009688] transition-colors cursor-pointer"
             >
               Let's Go!
