@@ -12,21 +12,16 @@ function Core() {
   const userId = localStorage.getItem('userId')             // User Authentication
 
   // ============================== Enhanced Button Validation Functions ==============================
-
-  // Add these state variables to your existing state declarations:
   const [userInteractions, setUserInteractions] = useState({})
   const [loadingInteractions, setLoadingInteractions] = useState(true)
 
   // ============================== Mobile View - Scroll Down to Report ==============================
   const scrollToRightPanel = () => {
-    if (window.innerWidth < 768) {
-      const rightPanel = document.getElementById('right-panel')
-      if (rightPanel) {
-        rightPanel.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        })
-      }
+    if (window.innerWidth < 1024) {
+      window.scrollTo({ 
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+      })
     }
   }
 
@@ -868,7 +863,6 @@ function Core() {
                         setSelectedReport(report)
                         setTimeout(() => scrollToRightPanel(), 100) // Scroll down to report if in mobile
                       }}
-                      /* onClick={() => setSelectedReport(report)} */
                       className={`w-full h-[70px] md:h-[75px] rounded-[25px] bg-[#00786d] flex-shrink-0 cursor-pointer p-4
                         ${selectedReport?.id === report.id ? 'border-2 border-[#e0e0e0]' : ''},
                         ${isDarkMode ? 'bg-[#19202b] border-[#e0e0e0]' : 'bg-[#00786d] border-[#e0e0e0]'}
