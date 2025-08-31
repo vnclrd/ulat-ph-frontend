@@ -806,7 +806,7 @@ function Core() {
       <header
         className={`
           fixed flex w-full h-[75px] top-0 bg-[#008377] z-1000 transition-colors duration-500 ease-in-out
-          ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
+          ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#00786d]'}
         `}
       >
 
@@ -1794,11 +1794,11 @@ function Core() {
         </div>
       </div>
 
-      {/* ================================================== Footer ================================================== */}
+      {/* ================================================== Footer Content ================================================== */}
       <footer
         className={`
           fixed flex justify-around items-center w-full h-[75px] bottom-0 bg-[#008377] p-3 sm:p-5 md:p-5 lg:p-5 z-1000 transition-colors duration-500 ease-in-out
-          ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#00786d]'}
+          ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#00786d]'}
         `}
       >
 
@@ -1810,7 +1810,7 @@ function Core() {
             ${
               activeDiv === 'div1'
                 ? isDarkMode
-                  ? 'bg-[#1b253a] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
+                  ? 'bg-[#121212] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                   : 'bg-[#006057] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                 : 'bg-transparent text-[#e0e0e0]'
             }
@@ -1835,7 +1835,7 @@ function Core() {
             ${
               activeDiv === 'div2'
                 ? isDarkMode
-                  ? 'bg-[#1b253a] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
+                  ? 'bg-[#121212] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                   : 'bg-[#006057] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                 : 'bg-transparent text-[#e0e0e0]'
             }
@@ -1860,7 +1860,7 @@ function Core() {
             ${
               activeDiv === 'div3'
                 ? isDarkMode
-                  ? 'bg-[#1b253a] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
+                  ? 'bg-[#121212] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                   : 'bg-[#006057] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                 : 'bg-transparent text-[#e0e0e0]'
             }
@@ -1885,7 +1885,7 @@ function Core() {
             ${
             activeDiv === 'div4'
               ? isDarkMode
-                ? 'bg-[#1b253a] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
+                ? 'bg-[#121212] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
                 : 'bg-[#006057] text-[#e0e0e0] rounded-[15px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-colors duration-500 ease-in-out'
               : 'bg-transparent text-[#e0e0e0]'
             }
