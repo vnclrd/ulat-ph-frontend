@@ -401,7 +401,7 @@ function Core() {
       make_report_selected_image: 'No image selected',
       make_report_choose_image: 'Choose image',
       make_report_discard_image: 'Discard image',
-      make_report_choose_issue: 'Select type of issue',
+      make_report_choose_issue: 'Select category of issue',
       make_report_custom_issue: 'Custom issue',
       make_report_custom_issue_desc: 'Describe the issue',
       make_report_short_desc: 'Write a short description about the issue',
@@ -902,7 +902,7 @@ function Core() {
                         {/* Left Part of Card */}
                         <div className='flex flex-col'>
 
-                          {/* Report Name (Pothole, Broken Streetlight, etc...) */}
+                          {/* Report Category */}
                           <h3 className='text-[#e0e0e0] font-bold text-base md:text-lg'>
                             {report.issue_type === 'custom' ? report.custom_issue : report.issue_type}
                           </h3>
@@ -1407,13 +1407,20 @@ function Core() {
                 {/* Custom Issue */}
                 <option value='custom'>Custom Issue</option>
 
-                {/* Pothole */}
-                <option value='Pothole'>Pothole (Lubak)</option>
+                {/* Road & Street */}
+                <option value='Road & Streets'>Road & Streets</option>
 
-                {/* Broken Streetlight */}
-                <option value='Broken Streetlight'>
-                  Broken Streetlight (Sirang Ilaw ng Poste)
-                </option>
+                {/* Waste & Sanitation */}
+                <option value='Waste & Sanitation'>Waste & Sanitation</option>
+
+                {/* Environmental & Flooding */}
+                <option value='Environmental & Flooding'>Environmental & Flooding</option>
+
+                {/* Safety & Security */}
+                <option value='Safety & Security'>Safety & Security</option>
+
+                {/* Public Facility */}
+                <option value='Public Facility'>Public Facility</option>
 
               </select>
 
