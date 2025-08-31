@@ -833,7 +833,7 @@ function Core() {
       <div
         className={`
           flex flex-col min-h-screen items-center justify-center pt-[65px] pb-[75px]
-          ${activeDiv === 'div1' ? isDarkMode ? 'bg-[#1b253a]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
+          ${activeDiv === 'div1' ? isDarkMode ? 'bg-[#161d2e]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
         `}
       >
 
@@ -1515,7 +1515,7 @@ function Core() {
       <div
         className={`
           flex flex-col sm:items-center sm:justify-center min-h-screen pt-[75px] pb-[75px] transition-colors duration-500 ease-in-out
-          ${activeDiv === 'div4' ? isDarkMode ? 'bg-[#1b253a]' : 'bg-[#009688]' : 'hidden'}
+          ${activeDiv === 'div4' ? isDarkMode ? 'bg-[#121212]' : 'bg-[#009688]' : 'hidden'}
         `}
       >
 
@@ -1533,7 +1533,7 @@ function Core() {
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out cursor-pointer text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
@@ -1577,7 +1577,7 @@ function Core() {
                 <div
                   className={`
                     w-5 h-5 rounded-full transition-transform duration-300 ease-in-out
-                    ${isDarkMode ? 'bg-[#191970] translate-x-6' : 'bg-[#e0e0e0] translate-x-0'}
+                    ${isDarkMode ? 'bg-[rgba(31,31,31,1)] translate-x-6' : 'bg-[#e0e0e0] translate-x-0'}
                   `}
                 >
                 </div>
@@ -1653,7 +1653,7 @@ function Core() {
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
@@ -1705,7 +1705,7 @@ function Core() {
               h-auto min-h-[75px] flex-col sm:flex-row lg:items-center
               justify-between rounded-2xl text-base md:text-lg p-5
               gap-3 shadow-lg transition-colors duration-500 ease-in-out text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
@@ -1757,7 +1757,7 @@ function Core() {
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
