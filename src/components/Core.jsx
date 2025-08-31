@@ -1221,7 +1221,7 @@ function Core() {
       <div
         className={`
           flex flex-col sm:items-center sm:justify-center min-h-screen pt-[75px] pb-[75px] transition-colors duration-500 ease-in-out
-          ${activeDiv === 'div3' ? isDarkMode ? 'bg-[#1b253a]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
+          ${activeDiv === 'div3' ? isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f] md:bg-[#009688]' : 'hidden'}
         `}
       >
 
@@ -1233,7 +1233,7 @@ function Core() {
             onSubmit={handleSubmit}
             className={`
               flex flex-col items-center w-full sm:w-[90%] md:w-[700px] rounded-[15px] bg-[#008c7f] pt-2 pb-6 px-5 lg:shadow-lg
-              ${isDarkMode ? 'bg-transparent md:bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-transparent md:bg-[rgba(31,31,31,1)]' : 'bg-[#008c7f]'}
             `}
           >
 
@@ -1271,7 +1271,7 @@ function Core() {
               <div
                 className={`
                   flex flex-col items-center justify-center w-[350px] lg:w-[400px] p-6 rounded-[25px] shadow-xl transition-colors duration-500
-                  ${isDarkMode ? 'bg-[#1e2a44] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'}
+                  ${isDarkMode ? 'bg-[#121212] text-[#e0e0e0]' : 'bg-[#008177] text-[#e0e0e0]'}
                 `}
               >
 
@@ -1311,7 +1311,7 @@ function Core() {
               className={`
                 flex items-center justify-center w-full sm:w-[80%] md:w-[400px] h-[180px] sm:h-[200px]
                 rounded-xl text-[#e0e0e0] bg-[#009688] mb-3 text-center px-2 overflow-hidden
-                ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#008c7f]'}
+                ${isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f]'}
               `}
             >
 
@@ -1472,7 +1472,7 @@ function Core() {
               className={`
                 w-full sm:w-[90%] md:w-[600px] h-[100px] resize-none bg-[#009688] text-[#e0e0e0]
                 rounded-[15px] mb-5 pl-5 pr-5 pt-4 text-sm md:text-base shadow-inner placeholder-[#e0e0e0]
-                ${isDarkMode ? 'bg-[#19202b]' : 'bg-[#008c7f]'}
+                ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212]' : 'bg-[#008c7f]'}
               `}
               required
             />
@@ -1490,7 +1490,7 @@ function Core() {
                 flex items-center justify-center w-full sm:w-[90%] md:w-[600px] h-[50px]
                 rounded-[15px] text-base md:text-lg bg-[#009688] text-[#e0e0e0]
                 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#006b61] transition-color
-                ${isDarkMode ? 'bg-[#19202b] hover:bg-[#212730]' : 'bg-[#008c7f]'}
+                ${isDarkMode ? 'bg-[rgba(31,31,31,1)] md:bg-[#121212] hover:bg-[#333333]' : 'bg-[#008c7f]'}
               `}
             >
 
@@ -1529,7 +1529,6 @@ function Core() {
 
           {/* Dark Mode Card */}
           <div
-            onClick={handleToggle}
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out cursor-pointer text-[#e0e0e0]
@@ -1575,6 +1574,7 @@ function Core() {
 
                 {/* Toggle Button Circle */}
                 <div
+                  onClick={handleToggle}
                   className={`
                     w-5 h-5 rounded-full transition-transform duration-300 ease-in-out
                     ${isDarkMode ? 'bg-[rgba(31,31,31,1)] translate-x-6' : 'bg-[#e0e0e0] translate-x-0'}
@@ -1590,7 +1590,7 @@ function Core() {
             className={`
               flex w-full sm:w-[90%] md:w-[70%] lg:w-[50%] h-auto min-h-[75px] flex-col sm:flex-row lg:items-center justify-between rounded-2xl text-base md:text-lg p-5 gap-3 shadow-lg 
               transition-colors duration-500 ease-in-out text-[#e0e0e0]
-              ${isDarkMode ? 'bg-[#11161f]' : 'bg-[#008c7f]'}
+              ${isDarkMode ? 'bg-[#121212]' : 'bg-[#008c7f]'}
             `}
           >
 
