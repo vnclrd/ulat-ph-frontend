@@ -827,7 +827,7 @@ function Core() {
           </p>
 
         </div>
-        
+
       </header>
 
       {/* ================================================== Reports Page Content ================================================== */}
@@ -1130,7 +1130,8 @@ function Core() {
                   <button 
                     onClick={() => handleResolvedClick(selectedReport?.id)}
                     disabled={
-                      !selectedReport || 
+                      !selectedReport ||
+                      selectedReport?.id === '3f8007aa-927b-4d8f-8004-c9431666ee2d' ||
                       buttonLoading[`resolved-${selectedReport?.id}`] || 
                       !canUserInteract(selectedReport?.id, 'resolved') ||
                       loadingInteractions
